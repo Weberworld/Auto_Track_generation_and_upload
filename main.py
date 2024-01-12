@@ -10,7 +10,7 @@ from sunodownloads.sono_ai_spider import run_suno_bot
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('cron', day_of_week='mon-fri', hour=1)
+@sched.scheduled_job('cron', day_of_week='mon-fri', hour=2)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
