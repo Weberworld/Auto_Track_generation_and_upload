@@ -39,7 +39,7 @@ def parse_prompts() -> dict:
                         current_index += 1
                         continue
 
-                    prefix = re.search("^..\s", each)
+                    prefix = re.search("^..\\s", each)
                     # Remove any number prefix
                     if prefix:
                         each = each.removeprefix(prefix.group())
