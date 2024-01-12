@@ -34,9 +34,7 @@ class SoundCloud:
 
         self.driver.uc_open(link)
         self.result['account'] = username
-        # load_cookies(self.driver, "soundcloud", username)
-        # self.driver.uc_open("https://artists.soundcloud.com/monetization/soundcloud")
-        # return
+
         google_sign_option = wait_for_elements_presence(self.driver,
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
             0]
@@ -121,7 +119,7 @@ class SoundCloud:
             Monetize all the monetized tracks on the account. Paginates to the next page if need be
         """
 
-        self.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
+
         # wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
         print("Monetizing Tracks ....")
         not_allowed_text = self.driver.get_text("#right-before-content > div", timeout=Settings.TIMEOUT)
@@ -216,6 +214,7 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
     soundcloud_bot.login(link, username, password)
     soundcloud_bot.upload_tracks(store)
     if soundcloud_bot.sync_soundcloud_tracks():
+        soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         soundcloud_bot.monetize_track()
     soundcloud_result.append(soundcloud_bot.result)
     soundcloud_bot.driver.close()
