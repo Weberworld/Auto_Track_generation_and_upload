@@ -249,7 +249,7 @@ def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: l
                 - Total number of songs created: {total_songs} / {total_suno_accounts * 10} expected\n
                 - Suno AI accounts used: {total_suno_accounts}
 
-                📝 Detailed Statistics from Soundcloud\ 
+                📝 Detailed Statistics from Soundcloud
             """
     index = 1
     for upload_details in result_from_soundcloud:
@@ -267,8 +267,7 @@ def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: l
 def rename_downloaded_audio_file(filename, new_filename):
     try:
         dir_path = os.path.join(os.getcwd(), "downloaded_files")
-        # print(dir_path)
-        # print(os.listdir(dir_path))
+
         os.rename(os.path.join(dir_path, (filename + ".mp3")), os.path.join(dir_path, new_filename))
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
