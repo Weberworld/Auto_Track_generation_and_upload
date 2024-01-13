@@ -33,7 +33,7 @@ class SoundCloud:
         :param password: Account password
         """
 
-        self.driver.uc_open(link)
+        self.driver.get(link)
 
         print("Loggin in with google")
         self.result['account'] = username
