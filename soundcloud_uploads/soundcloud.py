@@ -18,7 +18,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True, incognito=True)
+        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True)
         self.result = {
             "account": "",
             "upload_count": 0,
