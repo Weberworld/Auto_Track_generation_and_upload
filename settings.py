@@ -2,7 +2,7 @@ class Settings:
 
     HEADLESS = True
 
-    TIMEOUT: int = 20
+    TIMEOUT: int = 40
 
     SUNO_BASE_URL = "https://app.suno.ai/"
     NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES = 2

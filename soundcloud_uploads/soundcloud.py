@@ -82,7 +82,7 @@ class SoundCloud:
 
         print("Uploading tracks ...")
         # Accept cookies
-        wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
+        wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
         self.driver.click_if_visible(".loginButton")
         self.driver.sleep(2)
         # Select the choose file to upload btn
