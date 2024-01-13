@@ -155,12 +155,17 @@ class SunoAI:
             print(track_details)
             index += 1
             store_into.append(track_details)
+            self.driver.sleep(2)
         self.driver.sleep(5)
 
 
 def run_suno_bot(username, password, prompt, store):
-    suno_bot = SunoAI()
-    suno_bot.sign_in(username, password)
-    suno_bot.run(username, prompt, store)
-    # suno_bot.driver.close()
-
+    try:
+        suno_bot = SunoAI()
+        suno_bot.sign_in(username, password)
+        suno_bot.run(username, prompt, store)
+        suno_bot.driver.close()
+    except Exception as e:
+        print("Got exception from suno")
+        print(e)
+        pass
