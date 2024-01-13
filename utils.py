@@ -1,6 +1,7 @@
 import os
 import pickle
 import re
+import time
 from datetime import datetime
 
 import requests
@@ -163,7 +164,9 @@ def sign_in_with_google(driver, username, password):
 
     """
     print("Enter username")
-    driver.type("#identifierId", username, timeout=Settings.TIMEOUT)
+    print(driver.current_url)
+    driver.type("input", username, timeout=Settings.TIMEOUT)
+    print("Waiting for continue btn")
     driver.click_if_visible("#identifierNext > div > button > span")
     print("Clicked username continue btn")
 
