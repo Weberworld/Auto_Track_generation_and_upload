@@ -33,7 +33,7 @@ class SoundCloud:
         :param password: Account password
         """
 
-        self.driver.uc_open(link)
+        self.driver.get(link)
         self.result['account'] = username
 
         google_sign_option = wait_for_elements_presence(self.driver,
@@ -69,7 +69,7 @@ class SoundCloud:
         Upload downloaded tracks from suno_ai_spider run to the given to the artist profile
         """
 
-        self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
+        self.driver.get(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
 
         print("Uploading tracks ...")
         # Accept cookies
