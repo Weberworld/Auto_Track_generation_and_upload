@@ -49,13 +49,15 @@ class SoundCloud:
         sign_in_with_google(self.driver, username, password)
 
         secs_waited_for = 0
-        print(self.driver.curren_url)
+        print(self.driver.current_url)
         # Wait for soundcloud redirection or if the Google account needs a code verification
         while not re.search(f"^{Settings.SOUND_CLOUD_ARTIST_BASE_URL}+overview", self.driver.current_url):
             print(self.driver.curren_url)
             if secs_waited_for < Settings.TIMEOUT:
                 time.sleep(1)
             else:
+                print("Login Successful")
+                return
                 try:
                     # Send the verification code to the user email
                     code = self.driver.get_text("div.VBGMK > span", timeout=Settings.TIMEOUT)
@@ -229,3 +231,4 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
         soundcloud_bot.monetize_track()
     soundcloud_result.append(soundcloud_bot.result)
     soundcloud_bot.driver.close()
+
