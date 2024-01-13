@@ -227,4 +227,3 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
         soundcloud_bot.monetize_track()
     soundcloud_result.append(soundcloud_bot.result)
     soundcloud_bot.driver.close()
-

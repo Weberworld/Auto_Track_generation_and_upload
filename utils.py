@@ -163,6 +163,8 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
+    driver.sleep(4)
+    print(driver.window_handles)
     print("Enter username")
     print(driver.current_url)
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
@@ -287,4 +289,6 @@ def rename_downloaded_audio_file(filename, new_filename):
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
         pass
+
+
 
