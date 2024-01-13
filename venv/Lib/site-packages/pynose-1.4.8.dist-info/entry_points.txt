@@ -1,3 +1,0 @@
-[console_scripts]
-nosetests = nose.core:run_exit
-pynose = nose.core:run_exit
