@@ -152,7 +152,7 @@ class SunoAI:
                 "tag_list": tag_str,
                 "img_path": img_path
             }
-
+            print(track_details)
             index += 1
             store_into.append(track_details)
         self.driver.sleep(5)

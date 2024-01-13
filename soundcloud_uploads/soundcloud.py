@@ -35,6 +35,7 @@ class SoundCloud:
 
         self.driver.get(link)
         self.result['account'] = username
+        print("username")
 
         google_sign_option = wait_for_elements_presence(self.driver,
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
