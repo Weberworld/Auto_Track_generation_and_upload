@@ -23,31 +23,31 @@ def automation_process():
 
         start_index = 0
         end_index = Settings.CONCURRENT_PROCESS
-        while True:
-            #   Run 5 suno bot concurrently
-            all_suno_threads = []
-            for account in all_suno_accounts[start_index:end_index]:
-                # Create a suno AI bot instance
-                suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
-                                     target=run_suno_bot,
-                                     args=(
-                                         account['username'], account['password'], prompt_info,
-                                         all_downloaded_audios_info))
-                suno_thread.start()
-                print(suno_thread.name + " started")
-                all_suno_threads.append(suno_thread)
-                time.sleep(2)
-                break
-
-            # Wait for all suno thread to finish
-            for suno_thread in all_suno_threads:
-                suno_thread.join()
-            if end_index >= len(all_suno_accounts):
-                break
-            break
-
-            start_index = end_index
-            end_index += Settings.CONCURRENT_PROCESS
+        # while True:
+        #     #   Run 5 suno bot concurrently
+        #     all_suno_threads = []
+        #     for account in all_suno_accounts[start_index:end_index]:
+        #         # Create a suno AI bot instance
+        #         suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
+        #                              target=run_suno_bot,
+        #                              args=(
+        #                                  account['username'], account['password'], prompt_info,
+        #                                  all_downloaded_audios_info))
+        #         suno_thread.start()
+        #         print(suno_thread.name + " started")
+        #         all_suno_threads.append(suno_thread)
+        #         time.sleep(2)
+        #         break
+        #
+        #     # Wait for all suno thread to finish
+        #     for suno_thread in all_suno_threads:
+        #         suno_thread.join()
+        #     if end_index >= len(all_suno_accounts):
+        #         break
+        #     break
+        #
+        #     start_index = end_index
+        #     end_index += Settings.CONCURRENT_PROCESS
 
         # Sound Cloud Upload and monetization
         start_index = 0
