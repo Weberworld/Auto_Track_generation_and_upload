@@ -11,15 +11,8 @@ class SunoAI:
 
         self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True)
         self.driver.set_window_size(1200, 800)
-        # chrome_options = webdriver.ChromeOptions()
-        # # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        # chrome_options.add_argument("--headless")
-        # chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--disable-dev-shm-usage")
-        # # self.driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-        # self.driver = webdriver.Firefox()
-    # Login into suno
 
+    # Login into suno
     def sign_in(self, username, password, max_retry=5):
         """
         Opens the sign-in page on suno and sign in to an account using a Microsoft account credential
@@ -56,8 +49,8 @@ class SunoAI:
         print("Creating tracks ....")
         self.driver.get(Settings.SUNO_BASE_URL + "create")
         prompt_input_ele = "div.chakra-stack.css-131jemj > div.chakra-stack.css-10k728o > textarea"
-        wait_for_elements_presence(self.driver, prompt_input_ele)[0].send_keys(prompt)
-        self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
+        wait_for_elements_presence(self.driver, prompt_input_ele)#[0].send_keys(prompt)
+        # self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
 
     @handle_exception(retry=True)
     def get_generated_tracks_selection(self, no_of_tracks) -> list:
