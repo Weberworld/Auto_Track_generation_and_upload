@@ -37,13 +37,6 @@ def handle_exception(retry=False):
         def inner_func(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except TimeoutException:
-                logger.info("Handled Timeout Exception")
-                if retry:
-                    print("Retrying function")
-                    logger.log(logging.WARNING, "Retrying du")
-                    return func(*args, **kwargs)
-                pass
 
             except NoSuchElementException:
                 time.sleep(100)
@@ -54,7 +47,13 @@ def handle_exception(retry=False):
             except ElementNotInteractableException:
                 logger.log(logging.WARNING, "Element not iteraceable. --- Function c")
                 pass
-            except Exception:
+            except Exception as e:
+                print(e)
+                logger.info("Handled Timeout Exception")
+                if retry:
+                    print("Retrying function")
+                    logger.log(logging.WARNING, "Retrying du")
+                    return func(*args, **kwargs)
                 pass
         return inner_func
     return wrapper

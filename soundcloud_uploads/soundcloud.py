@@ -1,6 +1,7 @@
 import re
 import time
 
+import pyperclip
 from selenium.common import TimeoutException
 from selenium.webdriver import Keys
 from seleniumbase import Driver
@@ -16,7 +17,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, headless=Settings.HEADLESS, no_sandbox=True)
+        self.driver = Driver(uc=True, headless=Settings.HEADLESS, no_sandbox=True, incognito=True)
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -59,22 +60,27 @@ class SoundCloud:
                 except (TimeoutException, NoSuchElementException):
                     return self.login(link, username, password)
             secs_waited_for += 1
+        self.driver.sleep(2)
         print("Login success")
 
+    @handle_exception(retry=True)
     def upload_tracks(self, downloaded_audios_info):
         """
         Upload downloaded tracks from suno_ai_spider run to the given to the artist profile
         """
 
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
+
         print("Uploading tracks ...")
         # Accept cookies
         wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
+        self.driver.click_if_visible(".loginButton")
         self.driver.sleep(2)
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
         # Click on not to create playlist
         try:
+            wait_for_elements_presence(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
             self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
         except Exception as e:
             pass
@@ -106,31 +112,35 @@ class SoundCloud:
                     # Upload the track image
                     all_uploads_img[track_index].send_keys(audio_info["img_path"])
                     # Set the additional tracks tags
-                    all_uploads_tags[track_index].send_keys(audio_info["tag_list"], Keys.ENTER)
+                    # Convert the tag list to a string separated by spaces
+                    tag_list_str = " ".join(audio_info["tag_list"])
+                    # Copy the tag list string to the clipboard
+                    pyperclip.copy(tag_list_str)
+                    # Paste the tag list string from the clipboard
+                    all_uploads_tags[track_index].send_keys(Keys.CONTROL, 'v')
                     self.driver.sleep(2)
                     break
         self.driver.execute_script(open("soundcloud_uploads/upload.js").read(), genre_name)
         self.result['upload_count'] = len(all_uploads_img)
         self.driver.sleep(2)
 
-    # @handle_exception()
     def monetize_track(self):
         """
             Monetize all the monetized tracks on the account. Paginates to the next page if need be
         """
 
-
-        # wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
         print("Monetizing Tracks ....")
         not_allowed_text = self.driver.get_text("#right-before-content > div", timeout=Settings.TIMEOUT)
         if not_allowed_text == "You don't have access to this page.":
             return False
 
+        self.driver.sleep(2)
         all_monetize_track_btns = wait_for_elements_to_be_clickable(self.driver,
                                                                     "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
                 btn_ele.click()
+                self.driver.sleep(2)
                 wait_for_elements_presence(self.driver, "#monetization-form")
                 fill_form_js_script = """
                     let form_ele = document.getElementById("monetization-form");
@@ -192,13 +202,7 @@ class SoundCloud:
             self.driver.sleep(60)
             return True
         except Exception:
-            allowed = wait_for_elements_to_be_clickable(self.driver, "#right-before-content > div > div > button")
-            if len(allowed) > 0:
-                allowed[0].click()
-                print("Btn clicked 2")
-                self.driver.sleep(60)
-                return True
-        return False
+            return False
 
 
 def run_soundcloud_bot(link, username, password, store, soundcloud_result: list):

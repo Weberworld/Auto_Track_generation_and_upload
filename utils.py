@@ -144,8 +144,12 @@ def sign_in_with_microsoft(driver, username, password):
     # Type password
     driver.type("#i0118", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#idSIButton9")
+    if re.search(f"^{Settings.SUNO_BASE_URL}", driver.current_url):
+        return
 
+    driver.sleep(1)
     driver.click_if_visible("#KmsiCheckboxField", timeout=Settings.TIMEOUT)
+    driver.sleep(1)
     driver.click_if_visible("#idSIButton9", timeout=Settings.TIMEOUT)
 
 
@@ -165,6 +169,7 @@ def sign_in_with_google(driver, username, password):
     driver.type("#password > div.aCsJod.oJeWuf > div > div.Xb9hP > input", password,
                 timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button")
+    driver.sleep(3)
 
 
 def download_image(link, image_name):
@@ -227,7 +232,8 @@ def send_telegram_message(message: str):
     requests.get(url).json()
 
 
-def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: list, genre: str, result_from_soundcloud: list):
+def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: list, genre: str,
+                          result_from_soundcloud: list):
     """
     Send a statistical telegram report of daily process routine
     :param all_downloaded_audios_info: List of all downloaded tracks  info
@@ -254,12 +260,12 @@ def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: l
     index = 1
     for upload_details in result_from_soundcloud:
         telegram_message += f"""
-                ___________________________________
+            ___________________________________
                 SoundCloud Account {index} - {upload_details['account']}
                     - Number of songs uploaded: {upload_details['upload_count']} / {total_suno_accounts * 10} expected
                     - Monetized songs: {upload_details['monetization_count']}
                 ___________________________________
-                """
+            """
         index += 1
     send_telegram_message(telegram_message)
 
@@ -272,3 +278,4 @@ def rename_downloaded_audio_file(filename, new_filename):
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
         pass
+

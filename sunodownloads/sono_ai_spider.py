@@ -1,6 +1,5 @@
 import re
 from selenium.common import StaleElementReferenceException
-
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
 from settings import Settings
 from seleniumbase import Driver
@@ -12,8 +11,15 @@ class SunoAI:
 
         self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True)
         self.driver.set_window_size(1200, 800)
-
+        # chrome_options = webdriver.ChromeOptions()
+        # # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
+        # # self.driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+        # self.driver = webdriver.Firefox()
     # Login into suno
+
     def sign_in(self, username, password, max_retry=5):
         """
         Opens the sign-in page on suno and sign in to an account using a Microsoft account credential
@@ -144,13 +150,13 @@ class SunoAI:
             img_path = download_image(img_src, track_title)
             # Format tag list
             tag_str = scraped_details[1][index].text.split(" ")
-            formatted_tag_list = " #".join(tag_str)
+            # formatted_tag_list = " #".join(tag_str)
             # Store the track info
             track_details = {
                 "account": account_username,
                 "title": scraped_details[0][index].text,
                 "genre": prompt_info['genre'],
-                "tag_list": formatted_tag_list,
+                "tag_list": tag_str,
                 "img_path": img_path
             }
 
@@ -164,3 +170,4 @@ def run_suno_bot(username, password, prompt, store):
     suno_bot.sign_in(username, password)
     suno_bot.run(username, prompt, store)
     suno_bot.driver.close()
+

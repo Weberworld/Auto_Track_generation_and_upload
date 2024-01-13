@@ -27,3 +27,19 @@
 2024-01-12 01:03:00,568  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
 2024-01-12 01:03:00,568  --  INFO -- Added job "automation_process" to job store "default"
 2024-01-12 01:03:00,568  --  INFO -- Scheduler started
+2024-01-13 12:33:31,184  --  ERROR -- Error terminating service process.
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\selenium\webdriver\common\service.py", line 170, in _terminate_process
+    self.process.terminate()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1671, in terminate
+    _winapi.TerminateProcess(self._handle, 1)
+OSError: [WinError 6] The handle is invalid
+2024-01-13 13:30:43,895  --  INFO -- Handled Timeout Exception
+2024-01-13 13:30:43,898  --  WARNING -- Retrying du
+2024-01-13 13:31:33,657  --  INFO -- Handled Timeout Exception
+2024-01-13 13:31:33,658  --  WARNING -- Retrying du
+2024-01-13 13:37:01,853  --  INFO -- Handled Timeout Exception
+2024-01-13 13:37:01,853  --  WARNING -- Retrying du
+2024-01-13 13:41:25,795  --  INFO -- Handled Timeout Exception
+2024-01-13 13:41:25,796  --  WARNING -- Retrying du
+2024-01-13 13:48:57,427  --  INFO -- Handled Timeout Exception
