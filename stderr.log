@@ -43,3 +43,5 @@ OSError: [WinError 6] The handle is invalid
 2024-01-13 13:41:25,795  --  INFO -- Handled Timeout Exception
 2024-01-13 13:41:25,796  --  WARNING -- Retrying du
 2024-01-13 13:48:57,427  --  INFO -- Handled Timeout Exception
+2024-01-13 15:33:15,336  --  INFO -- Handled Timeout Exception
+2024-01-13 15:33:15,339  --  WARNING -- Retrying du

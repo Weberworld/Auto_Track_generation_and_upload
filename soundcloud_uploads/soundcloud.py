@@ -34,6 +34,8 @@ class SoundCloud:
         """
 
         self.driver.get(link)
+
+        print("Loggin in with google")
         self.result['account'] = username
         print("username")
 
