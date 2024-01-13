@@ -49,7 +49,7 @@ class SoundCloud:
         sign_in_with_google(self.driver, username, password)
 
         secs_waited_for = 0
-        print(self.driver.curren_url)
+        print(self.driver.current_url)
         # Wait for soundcloud redirection or if the Google account needs a code verification
         while not re.search(f"^{Settings.SOUND_CLOUD_ARTIST_BASE_URL}+overview", self.driver.current_url):
             print(self.driver.current_url)
