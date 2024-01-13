@@ -84,7 +84,7 @@ def automation_process():
         # print(f"\n\nWaiting for the next {Settings.INTERVAL_IN_HOURS} hours before next session")
         time.sleep(60)
     # Send the statistical report for the whole day process
-
+    print("done")
     send_daily_statistics(all_downloaded_audios_info, all_suno_accounts, genre_used, result_from_soundcloud)
 
 
