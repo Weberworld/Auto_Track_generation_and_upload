@@ -55,8 +55,10 @@ class SoundCloud:
             print(self.driver.current_url)
             if secs_waited_for < Settings.TIMEOUT:
                 time.sleep(1)
+
                 try:
                     # Send the verification code to the user email
+                    print("Sending message")
                     send_telegram_message("Trying to retrive auth code")
                     code = self.driver.get_text("div.VBGMK > span", timeout=Settings.TIMEOUT)
                     print("Verification code has been sent to the user's phone. Please confirm registration")
