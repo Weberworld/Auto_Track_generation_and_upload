@@ -45,6 +45,8 @@ class SoundCloud:
             0]
         google_sign_option.click()
         print("Clicked on google sign in")
+        while re.search(f"^{SOUND_CLOUD_BASE_URL}", self.driver.current_url):
+            time.sleep(1)
         # Proceed to sign in with Google
         sign_in_with_google(self.driver, username, password)
 

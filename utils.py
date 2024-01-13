@@ -3,9 +3,7 @@ import pickle
 import re
 import time
 from datetime import datetime
-
 import requests
-
 from settings import Settings
 
 
@@ -163,14 +161,12 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
-    driver.sleep(5)
-    print(driver.window_handles)
-    print(driver.current_url)
     print("Enter username")
 
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     # driver.sleep(5)
     print("Waiting for continue btn")
+
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
     # driver.sleep(3)
     print("Clicked username continue btn")
