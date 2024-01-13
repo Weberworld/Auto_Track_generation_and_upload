@@ -83,7 +83,7 @@ class SunoAI:
                                                   "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
                     option].click()
                 return
-        except StaleElementReferenceException:
+        except Exception:
             self.driver.refresh()
             wait_for_elements_presence(self.driver, "button.chakra-button.chakra-menu__menu-button.css-o244em")
             self.select_an_option_from_a_track(option_sel_btn_ele, option, download)
