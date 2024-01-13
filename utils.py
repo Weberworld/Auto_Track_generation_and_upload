@@ -162,13 +162,17 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
+    print("Enter username")
     driver.type("#identifierId", username, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#identifierNext > div > button > span")
+    print("Clicked username continue btn")
 
     # Type password
+    print("Enter password")
     driver.type("#password > div.aCsJod.oJeWuf > div > div.Xb9hP > input", password,
                 timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button")
+    print("Enter password continue btn")
     driver.sleep(3)
 
 

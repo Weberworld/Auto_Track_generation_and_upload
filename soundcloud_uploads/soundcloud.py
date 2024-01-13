@@ -33,16 +33,17 @@ class SoundCloud:
         :param password: Account password
         """
 
-        self.driver.get(link)
+        self.driver.uc_open(link)
 
         print("Loggin in with google")
         self.result['account'] = username
-        print("username")
+        print(username)
 
         google_sign_option = wait_for_elements_presence(self.driver,
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
             0]
         google_sign_option.click()
+        print("Clicked on google sign in")
         # Proceed to sign in with Google
         sign_in_with_google(self.driver, username, password)
 
