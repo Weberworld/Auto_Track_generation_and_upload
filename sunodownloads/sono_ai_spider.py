@@ -162,5 +162,5 @@ def run_suno_bot(username, password, prompt, store):
     suno_bot = SunoAI()
     suno_bot.sign_in(username, password)
     suno_bot.run(username, prompt, store)
-    suno_bot.driver.close()
+    # suno_bot.driver.close()
 
