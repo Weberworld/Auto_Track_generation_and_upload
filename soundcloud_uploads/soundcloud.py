@@ -228,7 +228,3 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
     soundcloud_result.append(soundcloud_bot.result)
     soundcloud_bot.driver.close()
 
-
-bot = SoundCloud()
-bot.login("https://secure.soundcloud.com/connect?client_id=3Q34KKc3GLeaLcJu8YJf7mRjTFUO62b1&redirect_uri=https%3A%2F%2Fartists.soundcloud.com&response_type=code",
-          "soundcloud.le89@gmail.com", "Lesages1!!!")
