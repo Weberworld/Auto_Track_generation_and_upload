@@ -284,6 +284,3 @@ def rename_downloaded_audio_file(filename, new_filename):
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
         pass
-
-
-
