@@ -54,10 +54,8 @@ class SoundCloud:
             return self.login(link, username, password, (retry - 1))
 
         secs_waited_for = 0
-        print(self.driver.current_url)
         # Wait for soundcloud redirection or if the Google account needs a code verification
         while not re.search(f"^{Settings.SOUND_CLOUD_ARTIST_BASE_URL}+overview", self.driver.current_url):
-            print(self.driver.current_url)
             if secs_waited_for < Settings.TIMEOUT:
                 time.sleep(1)
                 secs_waited_for += 1
@@ -79,7 +77,7 @@ class SoundCloud:
         # Accept cookies
         wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
         self.driver.click_if_visible(".loginButton")
-        self.driver.sleep(2)
+        self.driver.sleep(5)
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
         # Click on not to create playlist
@@ -221,6 +219,7 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
         soundcloud_bot = SoundCloud()
         soundcloud_bot.login(link, username, password)
         soundcloud_bot.upload_tracks(store)
+        time.sleep(1000)
         if soundcloud_bot.sync_soundcloud_tracks():
             soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
             soundcloud_bot.monetize_track()

@@ -38,22 +38,15 @@ def handle_exception(retry=False):
             try:
                 return func(*args, **kwargs)
 
-            except NoSuchElementException:
-                logger.info("Element not found")
-                # raise NoSuchElementException
-                pass
-
-            except ElementNotInteractableException:
-                logger.log(logging.WARNING, "Element not iteraceable. --- Function c")
-                pass
             except Exception as e:
                 print(e)
                 logger.info("Handled Unknown Exception")
-            finally:
+
                 if retry:
                     print("Retrying function")
                     logger.log(logging.WARNING, "Retrying du")
                     return func(*args, **kwargs)
+            finally:
                 pass
         return inner_func
     return wrapper

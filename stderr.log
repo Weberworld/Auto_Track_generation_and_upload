@@ -1,60 +1,9 @@
-2024-01-10 15:44:08,354  --  INFO -- Handled Timeout Exception
-2024-01-10 15:44:08,355  --  WARNING -- Retrying du
-2024-01-10 15:47:50,952  --  INFO -- Handled Timeout Exception
-2024-01-10 15:48:12,233  --  INFO -- Handled Timeout Exception
-2024-01-11 15:50:35,792  --  INFO -- Handled Timeout Exception
-2024-01-11 23:55:24,278  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-11 23:55:24,284  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-11 23:55:24,284  --  INFO -- Scheduler started
-2024-01-11 23:55:33,291  --  INFO -- Running job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:55:33 WAT)" (scheduled at 2024-01-11 23:55:33.278303+01:00)
-2024-01-11 23:55:42,280  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:55:42 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:55:51,284  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:55:51 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:00,281  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:00 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:09,287  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:09 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:18,283  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:18 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:27,286  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:27 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:36,289  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:36 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:56:45,281  --  WARNING -- Execution of job "automation_process (trigger: interval[0:00:09], next run at: 2024-01-11 23:56:45 WAT)" skipped: maximum number of running instances reached (1)
-2024-01-11 23:58:15,980  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-11 23:58:15,981  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-11 23:58:15,982  --  INFO -- Scheduler started
-2024-01-12 00:01:28,422  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-12 00:01:28,425  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-12 00:01:28,425  --  INFO -- Scheduler started
-2024-01-12 00:02:52,642  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-12 00:02:52,643  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-12 00:02:52,644  --  INFO -- Scheduler started
-2024-01-12 01:03:00,568  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-12 01:03:00,568  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-12 01:03:00,568  --  INFO -- Scheduler started
-2024-01-13 12:33:31,184  --  ERROR -- Error terminating service process.
+2024-01-14 23:38:45,712  --  INFO -- Handled Unknown Exception
+2024-01-14 23:38:45,713  --  WARNING -- Retrying du
+2024-01-14 23:38:54,054  --  ERROR -- Error terminating service process.
 Traceback (most recent call last):
   File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\selenium\webdriver\common\service.py", line 170, in _terminate_process
     self.process.terminate()
   File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1671, in terminate
     _winapi.TerminateProcess(self._handle, 1)
 OSError: [WinError 6] The handle is invalid
-2024-01-13 13:30:43,895  --  INFO -- Handled Timeout Exception
-2024-01-13 13:30:43,898  --  WARNING -- Retrying du
-2024-01-13 13:31:33,657  --  INFO -- Handled Timeout Exception
-2024-01-13 13:31:33,658  --  WARNING -- Retrying du
-2024-01-13 13:37:01,853  --  INFO -- Handled Timeout Exception
-2024-01-13 13:37:01,853  --  WARNING -- Retrying du
-2024-01-13 13:41:25,795  --  INFO -- Handled Timeout Exception
-2024-01-13 13:41:25,796  --  WARNING -- Retrying du
-2024-01-13 13:48:57,427  --  INFO -- Handled Timeout Exception
-2024-01-13 15:33:15,336  --  INFO -- Handled Timeout Exception
-2024-01-13 15:33:15,339  --  WARNING -- Retrying du
-2024-01-14 00:58:51,598  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-14 00:58:51,603  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-14 00:58:51,604  --  INFO -- Scheduler started
-2024-01-14 00:59:10,761  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-14 00:59:10,762  --  INFO -- Added job "automation_process" to job store "default"
-2024-01-14 00:59:10,762  --  INFO -- Scheduler started
-2024-01-14 01:00:47,315  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-14 01:00:47,317  --  INFO -- Scheduler started
-2024-01-14 01:00:47,318  --  INFO -- Added job "daily foo" to job store "default"
-2024-01-14 01:01:24,635  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2024-01-14 01:01:24,637  --  INFO -- Scheduler started
-2024-01-14 01:01:24,639  --  INFO -- Added job "daily foo" to job store "default"
-2024-01-14 01:02:05,017  --  INFO -- Running job "daily foo (trigger: cron[hour='1', minute='2', second='5'], next run at: 2024-01-14 01:02:05 WAT)" (scheduled at 2024-01-14 01:02:05+01:00)
