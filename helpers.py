@@ -39,7 +39,6 @@ def handle_exception(retry=False):
                 return func(*args, **kwargs)
 
             except NoSuchElementException:
-                time.sleep(100)
                 logger.info("Element not found")
                 # raise NoSuchElementException
                 pass
@@ -49,7 +48,8 @@ def handle_exception(retry=False):
                 pass
             except Exception as e:
                 print(e)
-                logger.info("Handled Timeout Exception")
+                logger.info("Handled Unknown Exception")
+            finally:
                 if retry:
                     print("Retrying function")
                     logger.log(logging.WARNING, "Retrying du")

@@ -135,7 +135,8 @@ class SunoAI:
             # Check if the title exists in the formally downloaded track titles
             for each in store_into:
                 if each['title'] in track_title:
-                    new_track_title = (track_title[0:-3] + " remix")
+                    # Add extra text to the duplicated track title
+                    new_track_title = (track_title[0:-3] + " 2nd version")
                     rename_downloaded_audio_file(track_title, new_track_title)
                     track_title = new_track_title
 

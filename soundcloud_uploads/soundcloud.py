@@ -25,7 +25,7 @@ class SoundCloud:
             "monetization_count": 0
         }
 
-    def login(self, link, username, password):
+    def login(self, link, username, password, retry=Settings.MAX_RETRY):
         """
         Log in to soundcloud account using Google credentials
         redirected
@@ -33,13 +33,13 @@ class SoundCloud:
         :param username: Account username
         :param password: Account password
         """
+        if retry == 0:
+            self.driver.close()
+            return
 
         self.driver.get(link)
-
         print("Logging in with google")
         self.result['account'] = username
-        print(username)
-
         google_sign_option = wait_for_elements_presence(self.driver,
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
             0]
@@ -48,7 +48,10 @@ class SoundCloud:
         while re.search(f"^{SOUND_CLOUD_BASE_URL}", self.driver.current_url):
             time.sleep(1)
         # Proceed to sign in with Google
-        sign_in_with_google(self.driver, username, password)
+        try:
+            sign_in_with_google(self.driver, username, password)
+        except Exception:
+            return self.login(link, username, password, (retry - 1))
 
         secs_waited_for = 0
         print(self.driver.current_url)
@@ -57,19 +60,9 @@ class SoundCloud:
             print(self.driver.current_url)
             if secs_waited_for < Settings.TIMEOUT:
                 time.sleep(1)
-            secs_waited_for += 1
-        try:
-            # Send the verification code to the user email
-            print("Sending message")
-            send_telegram_message("Trying to retrive auth code")
-            code = self.driver.get_text("div.VBGMK > span", timeout=Settings.TIMEOUT)
-            print("Verification code has been sent to the user's phone. Please confirm registration")
-            print(f"The Verification code is {code}")
-            send_telegram_message(f"Upwork Bot requests to login your google account.\n"
-                                  f"The Verification code is {code}")
-            self.driver.sleep(Settings.TIMEOUT)
-        except (TimeoutException, NoSuchElementException):
-                return self.login(link, username, password)
+                secs_waited_for += 1
+            else:
+                return self.login(link, username, password, (retry - 1))
 
         self.driver.sleep(2)
         print("Login success")
@@ -151,7 +144,6 @@ class SoundCloud:
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
                 btn_ele.click()
-                self.driver.sleep(2)
                 wait_for_elements_presence(self.driver, "#monetization-form")
                 fill_form_js_script = """
                     let form_ele = document.getElementById("monetization-form");
@@ -225,12 +217,16 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
     :param store: List of all downloaded tracks from suno AI bot
     :param soundcloud_result: List to store the result of the soundcloud bot run
     """
-    soundcloud_bot = SoundCloud()
-    soundcloud_bot.login(link, username, password)
-    soundcloud_bot.upload_tracks(store)
-    if soundcloud_bot.sync_soundcloud_tracks():
-        soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
-        soundcloud_bot.monetize_track()
-    soundcloud_result.append(soundcloud_bot.result)
-    soundcloud_bot.driver.close()
-
+    try:
+        soundcloud_bot = SoundCloud()
+        soundcloud_bot.login(link, username, password)
+        soundcloud_bot.upload_tracks(store)
+        if soundcloud_bot.sync_soundcloud_tracks():
+            soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
+            soundcloud_bot.monetize_track()
+        soundcloud_result.append(soundcloud_bot.result)
+        soundcloud_bot.driver.close()
+    except Exception as e:
+        print("Exception from Soundcloud")
+        print(e)
+        pass

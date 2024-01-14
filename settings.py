@@ -15,3 +15,5 @@ class Settings:
     INTERVAL_IN_HOURS = 3
 
     CONCURRENT_PROCESS = 5
+
+    MAX_RETRY = 5

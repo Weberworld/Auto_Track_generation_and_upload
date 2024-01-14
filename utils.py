@@ -1,7 +1,5 @@
 import os
-import pickle
 import re
-import time
 from datetime import datetime
 import requests
 from settings import Settings
@@ -62,6 +60,7 @@ def parse_prompts() -> dict:
                     fp.write(lines)
             return single_prompt
         except ValueError:
+            # Reset the genre selection file
             os.remove(os.path.join(os.getcwd(), "suno_prompts_v2.txt"))
             return parse_prompts()
 
@@ -109,13 +108,13 @@ def get_available_platform_accounts_v2(account_type) -> list:
     :param account_type: (suno, soundcloud)
     """
 
-    all_suno_username_environ_keys = [each for each in os.environ.keys() if
+    all_platform_username_environ_keys = [each for each in os.environ.keys() if
                                       re.search(f"^{account_type}.+username", each.lower())]
     password_list = [each for each in os.environ.keys() if
                      re.search(f"^{account_type}.+password", each.lower())]
     password = os.getenv(password_list[0])
     all_accounts = []
-    for username in all_suno_username_environ_keys:
+    for username in all_platform_username_environ_keys:
         try:
             all_accounts.append({
                 "username": os.getenv(username),
@@ -146,9 +145,7 @@ def sign_in_with_microsoft(driver, username, password):
     if re.search(f"^{Settings.SUNO_BASE_URL}", driver.current_url):
         return
 
-    driver.sleep(1)
     driver.click_if_visible("#KmsiCheckboxField", timeout=Settings.TIMEOUT)
-    driver.sleep(1)
     driver.click_if_visible("#idSIButton9", timeout=Settings.TIMEOUT)
 
 
@@ -233,9 +230,11 @@ def send_telegram_message(message: str):
     Sends a message to a telegram account
     :param message: Message to send
     """
-    url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage?chat_id={os.getenv('TELEGRAM_CHAT_ID')}&text={message}"
+    token = os.getenv('TELEGRAM_TOKEN')
+    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    url = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&parse_mode=HTML&text={message}'
     # Sends the message
-    requests.get(url).json()
+    requests.get(url)
 
 
 def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: list, genre: str,
@@ -248,31 +247,24 @@ def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: l
     :param result_from_soundcloud: List of all result the soundcloud bot returns
     :return:
     """
-    date = datetime.now().date()
+    date = datetime.now().date().strftime("%d/%m/%Y")
     total_songs = len(all_downloaded_audios_info)
     total_suno_accounts = len(all_suno_accounts)
 
-    telegram_message = f"""
-                🎶🎶  Musical Production Summary - {date} 🎶🎶🎶\n
+    telegram_message = f"🎶 <b>Résumé de la production musicale - <i>{date}</i></b> 🎶\n\n"
+    telegram_message += f"🌐 <b>Statistiques globales - Comptes Suno AI</b>\n\n"
+    telegram_message += f"— Nom du genre utilisé : <i>{genre}</i>\n"
+    telegram_message += f"— Nombre total de chansons créées : <i>{total_songs}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
+    telegram_message += f"— Comptes Suno AI utilisés : <i>{total_suno_accounts}</i>\n\n"
+    telegram_message += f"📝 <b>Détails par compte SoundCloud</b>\n\n"
 
+    for index, upload_details in enumerate(result_from_soundcloud, start=1):
+        telegram_message += f"🔹 Compte SoundCloud <i>{index}</i> - <i>{upload_details['account']}</i>\n"
+        telegram_message += f"— Chansons téléversées : <i>{upload_details['upload_count']}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
+        telegram_message += f"— Chansons monétisées : <i>{upload_details['monetization_count']}</i>\n"
+        if index < len(result_from_soundcloud):
+            telegram_message += f"——————————————————————————\n"
 
-               🌐 Global Statistics of Suno AI\n
-                - Genre name used: {genre}
-                - Total number of songs created: {total_songs} / {total_suno_accounts * 10} expected\n
-                - Suno AI accounts used: {total_suno_accounts}
-
-                📝 Detailed Statistics from Soundcloud
-            """
-    index = 1
-    for upload_details in result_from_soundcloud:
-        telegram_message += f"""
-            ___________________________________
-                SoundCloud Account {index} - {upload_details['account']}
-                    - Number of songs uploaded: {upload_details['upload_count']} / {total_suno_accounts * 10} expected
-                    - Monetized songs: {upload_details['monetization_count']}
-                ___________________________________
-            """
-        index += 1
     send_telegram_message(telegram_message)
 
 
