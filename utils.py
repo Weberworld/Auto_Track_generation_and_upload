@@ -172,8 +172,7 @@ def sign_in_with_google(driver, username, password):
 
     # Type password
     print("Enter password")
-    driver.type("div#password > div > div > div > input", password,
-                timeout=Settings.TIMEOUT)
+    driver.type("div#password > div > div > div > input", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button", timeout=Settings.TIMEOUT)
     print("Enter password continue btn")
     driver.sleep(3)

@@ -143,7 +143,6 @@ class SunoAI:
             img_path = download_image(img_src, track_title)
             # Format tag list
             tag_str = scraped_details[1][index].text.split(" ")
-            # formatted_tag_list = " #".join(tag_str)
             # Store the track info
             track_details = {
                 "account": account_username,
