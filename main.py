@@ -1,9 +1,6 @@
 import os
 import time
 from threading import Thread
-
-from apscheduler.triggers.cron import CronTrigger
-
 from settings import Settings
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -11,10 +8,10 @@ from utils import parse_prompts, get_available_platform_accounts_v2, delete_down
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from sunodownloads.sono_ai_spider import run_suno_bot
 
-sched = BackgroundScheduler()
+# sched = BackgroundScheduler()
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1)
+# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=1)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
@@ -92,20 +89,5 @@ def automation_process():
     send_daily_statistics(all_downloaded_audios_info, all_suno_accounts, genre_used, result_from_soundcloud)
 
 
-def main():
-    scheduler = BackgroundScheduler()
-    scheduler.start()
-    trigger = CronTrigger(
-        hour="1", minute="15", second="5"
-    )
-    scheduler.add_job(
-        automation_process,
-        trigger=trigger,
-        name="daily foo",
-    )
-    while True:
-        time.sleep(5)
-
-
-if __name__ == "__main__":
-    main()
+# sched.start()
+automation_process()
