@@ -96,7 +96,7 @@ def main():
     scheduler = BackgroundScheduler()
     scheduler.start()
     trigger = CronTrigger(
-        hour="1", minute="5", second="5"
+        hour="1", minute="8", second="5"
     )
     scheduler.add_job(
         automation_process,
