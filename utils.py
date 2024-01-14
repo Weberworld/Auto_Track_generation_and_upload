@@ -164,7 +164,6 @@ def sign_in_with_google(driver, username, password):
     print("Enter username")
 
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
-    # driver.sleep(5)
     print("Waiting for continue btn")
 
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
