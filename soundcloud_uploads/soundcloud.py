@@ -85,7 +85,6 @@ class SoundCloud:
             print("Clicked on accept cookies")
         except Exception:
             pass
-
         try:
             self.driver.click_if_visible(".loginButton", timeout=Settings.TIMEOUT)
             print("Cliked on sign in")

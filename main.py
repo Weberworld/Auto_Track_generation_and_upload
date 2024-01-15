@@ -62,7 +62,6 @@ def automation_process():
                 print(soundcloud_thread.name + " started")
                 all_soundcloud_threads.append(soundcloud_thread)
                 time.sleep(2)
-                break
 
             # Wait for all suno thread to finish
             for soundcloud_thread in all_soundcloud_threads:
