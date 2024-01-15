@@ -60,7 +60,7 @@ def wait_for_elements_presence(driver, selector: str) -> list:
     :return: The list of elements it waited for, if the function did not enter timeout
     """
     try:
-        WebDriverWait(driver, Settings.TIMEOUT).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
+        WebDriverWait(driver, Settings.TIMEOUT).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, selector)))
         return driver.find_elements(By.CSS_SELECTOR, selector)
     except TimeoutException:
         try:
