@@ -65,6 +65,7 @@ def parse_prompts() -> dict:
             os.remove(os.path.join(os.getcwd(), "suno_prompts_v2.txt"))
             return parse_prompts()
 
+
 def get_available_platform_accounts_v2(account_type) -> list:
     """
     Get all platform credential that are stored on the virtual environment
@@ -129,14 +130,13 @@ def sign_in_with_google(driver, username, password):
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     print("Waiting for continue btn")
 
+    driver.sleep(3)
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
-    # driver.sleep(3)
     print("Clicked username continue btn")
 
-
     # Type password
+    driver.sleep(3)
     print("Enter password")
-
     driver.type("div#password > div > div > div > input", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button", timeout=Settings.TIMEOUT)
 

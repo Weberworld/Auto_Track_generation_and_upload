@@ -1,16 +1,14 @@
 import os
 import re
 import time
-
 import pyperclip
-from selenium.common import TimeoutException
+
 from selenium.webdriver import Keys
 from seleniumbase import Driver
-from seleniumbase.common.exceptions import NoSuchElementException
-from seleniumbase import BaseCase
+
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
-from utils import sign_in_with_google, get_all_downloaded_audios, send_telegram_message
+from utils import sign_in_with_google, get_all_downloaded_audios
 
 SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 
@@ -57,13 +55,16 @@ class SoundCloud:
             return self.login(link, username, password, (retry - 1))
 
         secs_waited_for = 0
+        print("processing login ...")
         # Wait for soundcloud redirection or if the Google account needs a code verification
         while not re.search(f"^{Settings.SOUND_CLOUD_ARTIST_BASE_URL}+overview", self.driver.current_url):
             if secs_waited_for < Settings.TIMEOUT:
                 time.sleep(1)
                 secs_waited_for += 1
             else:
+                print("retry login")
                 return self.login(link, username, password, (retry - 1))
+            break
 
         self.driver.sleep(2)
         print("Login success")
