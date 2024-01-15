@@ -7,8 +7,6 @@
 
 
 return (function upload_tracks(genre_name){
-    // Set to true if you want to use custom name
-    const USE_CUSTOM_NAME = false;
 
     // Input the genre name you want to use
     const GENRE_NAME = genre_name;

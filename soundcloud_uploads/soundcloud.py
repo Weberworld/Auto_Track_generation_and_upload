@@ -18,7 +18,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True)
+        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True, incognito=True)
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -75,8 +75,11 @@ class SoundCloud:
 
         print("Uploading tracks ...")
         # Accept cookies
-        wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
-        self.driver.click_if_visible(".loginButton")
+        try:
+            wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
+        except Exception:
+            pass
+        self.driver.click_if_visible(".loginButton", timeout=Settings.TIMEOUT)
         self.driver.sleep(5)
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()

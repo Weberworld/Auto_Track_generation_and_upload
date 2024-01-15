@@ -48,7 +48,7 @@ class SunoAI:
         print("Creating tracks ....")
         self.driver.get(Settings.SUNO_BASE_URL + "create")
         prompt_input_ele = "div.chakra-stack.css-131jemj > div.chakra-stack.css-10k728o > textarea"
-        wait_for_elements_presence(self.driver, prompt_input_ele)#[0].send_keys(prompt)
+        wait_for_elements_presence(self.driver, prompt_input_ele)  # [0].send_keys(prompt)
         # self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
 
     @handle_exception(retry=True)
@@ -70,22 +70,26 @@ class SunoAI:
         try:
             option_sel_btn_ele.click()
             self.driver.sleep(2)
-            if download:
-                loading = True
-                while loading:
-                    if self.driver.execute_script(
-                            "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
-                        self.driver.sleep(1)
-                    else:
-                        loading = False
-                wait_for_elements_to_be_clickable(self.driver,
-                                                  "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
-                    option].click()
-                return
+
+            loading = True
+            while loading:
+                if self.driver.execute_script(
+                        "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
+                    self.driver.sleep(1)
+                else:
+                    loading = False
+            download_btn = wait_for_elements_to_be_clickable(self.driver,
+                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
+                option]
+            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            self.driver.sleep(2)
+            download_btn.click()
         except Exception:
-            self.driver.refresh()
-            wait_for_elements_presence(self.driver, "button.chakra-button.chakra-menu__menu-button.css-o244em")
-            self.select_an_option_from_a_track(option_sel_btn_ele, option, download)
+            download_btn = wait_for_elements_to_be_clickable(self.driver,
+                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
+                option]
+            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            download_btn.click()
 
     @handle_exception(retry=True)
     def download_track(self, track_opt_btn_ele):
@@ -107,60 +111,57 @@ class SunoAI:
                          -Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES::]
         return all_titles, all_genre_list
 
-    def run(self, account_username, prompt_info, store_into):
+    def run(self, account_username, all_prompt_info, store_into):
         """
-        Use a prompt to generate track and suno and store the details (title, genre, tag_list) of the downloaded track
+        Use a list of prompts to generate track and suno and store the details (title, genre, tag_list) of the downloaded track
         to the store_into list variable.
         :param account_username: Logged in suno account username
-        :param prompt_info: prompt to use to generate track on suno
+        :param all_prompt_info: list of prompts to use to generate track on suno
         :param store_into: List to store the details of the downloaded track
         """
 
-        # Create tracks with a given prompt
-        self.create_song(prompt_info['prompt'])
+        for prompt in all_prompt_info:
+            # Create tracks with a given prompt
+            print(prompt["prompt"])
+            self.create_song(prompt['prompt'])
 
-        # Download the generated tracks
-        generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)
+            # Download the generated tracks
+            generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)
 
-        index = 0
-        for track_sel_btn in generated_tracks_sel_btn:
-            self.download_track(track_sel_btn)
-            # Scrap the tracks title and tag list
-            scraped_details = self.scrap_details()
-            # Get the img download link
-            img_src = self.driver.execute_script(
-                "return (document.querySelector('div.css-rdnx5m > img').getAttribute('src'))")
-            track_title: str = scraped_details[0][index].text
-            # Check if the title exists in the formally downloaded track titles
-            print(track_title)
-            for each in store_into:
-                if each['title'] in track_title:
+            index = 0
+            for track_sel_btn in generated_tracks_sel_btn:
+                self.download_track(track_sel_btn)
+                # Scrap the tracks title and tag list
+                scraped_details = self.scrap_details()
+                # Get the img download link
+                img_src = self.driver.execute_script(
+                    "return (document.querySelector('div.css-rdnx5m > img').getAttribute('src'))")
+                track_title: str = scraped_details[0][index].text
+                # Check if the title exists in the formally downloaded track titles
+                for each in store_into:
+                    if each['title'] in track_title:
+                        # Add extra text to the duplicated track title
+                        new_track_title = (track_title + " 2nd version")
+                        rename_downloaded_audio_file(track_title, new_track_title)
+                        track_title = new_track_title
 
-                    print("Found Duplicated")
-                    print(f"Previous track {each['title']}")
-                    print(f"New track {track_title}")
-                    # Add extra text to the duplicated track title
-                    new_track_title = (track_title + " 2nd version")
-                    rename_downloaded_audio_file(track_title + " (1)", new_track_title)
-                    track_title = new_track_title
-
-            # Download the track image
-            img_path = download_image(img_src, track_title)
-            # Format tag list
-            tag_str = scraped_details[1][index].text.split(" ")
-            # Store the track info
-            track_details = {
-                "account": account_username,
-                "title": scraped_details[0][index].text,
-                "genre": prompt_info['genre'],
-                "tag_list": tag_str,
-                "img_path": img_path
-            }
-            print(track_details)
-            index += 1
-            store_into.append(track_details)
-            self.driver.sleep(2)
-        self.driver.sleep(5)
+                # Download the track image
+                img_path = download_image(img_src, track_title)
+                # Format tag list
+                tag_str = scraped_details[1][index].text.split(" ")
+                # Store the track info
+                track_details = {
+                    "account": account_username,
+                    "title": track_title,
+                    "genre": prompt['genre'],
+                    "tag_list": tag_str,
+                    "img_path": img_path
+                }
+                print(track_details)
+                index += 1
+                store_into.append(track_details)
+                self.driver.sleep(2)
+            self.driver.sleep(5)
 
 
 def run_suno_bot(username, password, prompt, store):

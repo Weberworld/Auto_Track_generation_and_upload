@@ -232,9 +232,12 @@ def send_telegram_message(message: str):
     """
     token = os.getenv('TELEGRAM_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
-    url = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&parse_mode=HTML&text={message}'
-    # Sends the message
-    requests.get(url)
+    try:
+        url = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&parse_mode=HTML&text={message}'
+        # Sends the message
+        requests.get(url)
+    except Exception:
+        pass
 
 
 def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: list, genre: str,
@@ -272,7 +275,6 @@ def rename_downloaded_audio_file(filename, new_filename):
     print("Renaming downloaded audio")
     try:
         dir_path = os.path.join(os.getcwd(), "downloaded_files")
-
         os.rename(os.path.join(dir_path, (filename + ".mp3")), os.path.join(dir_path, new_filename))
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
