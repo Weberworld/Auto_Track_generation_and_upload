@@ -76,33 +76,42 @@ class SoundCloud:
         Upload downloaded tracks from suno_ai_spider run to the given to the artist profile
         """
 
-        self.driver.get(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
+        self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
 
         print("Uploading tracks ...")
         # Accept cookies
         try:
             wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
+            print("Clicked on accept cookies")
         except Exception:
             pass
-        self.driver.click_if_visible(".loginButton", timeout=Settings.TIMEOUT)
+
+        try:
+            self.driver.click_if_visible(".loginButton", timeout=Settings.TIMEOUT)
+            print("Cliked on sign in")
+        except Exception:
+            print("Cannot click sign in from upload")
+            pass
         self.driver.sleep(5)
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
         # Click on not to create playlist
         try:
+            print("Do not create playlist")
             wait_for_elements_presence(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
             self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
         except Exception as e:
             pass
         self.driver.sleep(2)
         # Upload the audio files
-        self.driver.find_element("input.chooseFiles__input.sc-visuallyhidden").send_keys("\n".join(selected_audios))
-        time.sleep(Settings.TIMEOUT)
+        print("Uploading files")
+        wait_for_elements_to_be_clickable(self.driver, "input.chooseFiles__input.sc-visuallyhidden")[0].send_keys("\n".join(selected_audios))
         genre_name = downloaded_audios_info[0]['genre']
 
         self.driver.sleep(1)
         # Wait for all audio to upload
-        upload_status = self.driver.get_text("span.uploadButton__title")
+        upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
+        print("processing")
         while "processing" in upload_status.lower() or "uploading" in upload_status.lower():
             self.driver.sleep(1)
             upload_status = self.driver.get_text("span.uploadButton__title")

@@ -75,3 +75,5 @@ OSError: [WinError 6] The handle is invalid
 2024-01-15 13:39:25,117  --  WARNING -- Retrying du
 2024-01-15 14:20:12,976  --  INFO -- Handled Unknown Exception
 2024-01-15 14:20:12,977  --  WARNING -- Retrying du
+2024-01-15 16:59:59,919  --  INFO -- Handled Unknown Exception
+2024-01-15 16:59:59,919  --  WARNING -- Retrying du
