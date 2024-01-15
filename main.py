@@ -30,12 +30,12 @@ def automation_process():
         #   Run 5 suno bot concurrently
         all_suno_threads = []
         for account in all_suno_accounts[suno_start_index:suno_end_index]:
-            # Create a suno AI bot instance
+            username = account[0]
+            password = account[1]
             suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
                                  target=run_suno_bot,
-                                 args=(
-                                     account['username'], account['password'], all_daily_prompts,
-                                     all_downloaded_audios_info))
+                                 args=(username, password, all_daily_prompts,
+                                       all_downloaded_audios_info))
             suno_thread.start()
             print(suno_thread.name + " started")
             all_suno_threads.append(suno_thread)
@@ -52,9 +52,11 @@ def automation_process():
             #  Run 5 soundcloud bots concurrently
             all_soundcloud_threads = []
             for account in all_soundcloud_account[soundcloud_start_index:soundcloud_end_index]:
-                # Create a soundcloud bot instance
-                soundcloud_thread = Thread(name=f"Soundcloud account: {account['username']}", target=run_soundcloud_bot,
-                                           args=(os.getenv("SOUNDCLOUD_LINK"), account['username'], account['password'],
+                # Create a SoundCloud bot instance
+                username = account[0]
+                password = account[1]
+                soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
+                                           args=(os.getenv("SOUNDCLOUD_LINK"), username, password,
                                                  all_downloaded_audios_info, result_from_soundcloud)
                                            )
                 soundcloud_thread.start()

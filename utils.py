@@ -74,20 +74,33 @@ def get_available_platform_accounts_v2(account_type) -> list:
     :param account_type: (suno, soundcloud)
     """
 
-    all_platform_username_environ_keys = [each for each in os.environ.keys() if
-                                      re.search(f"^{account_type}.+username", each.lower())]
-    password_list = [each for each in os.environ.keys() if
-                     re.search(f"^{account_type}.+password", each.lower())]
-    password = os.getenv(password_list[0])
+    def get_available_platform_accounts_v2(account_type) -> list:
+        """
+        Get all platform credentials stored in the virtual environment.
+        This assumes that the password is the same for all platform accounts.
+
+
+
+        :param account_type: (suno, soundcloud)
+        """
+
+    # Get environment variables that match the account type
+    all_platform_username_environ_keys = [key for key in os.environ.keys() if
+                                          key.startswith(account_type.upper() + "_USERNAME_")]
+
+    # Get the password for the account type
+    password = os.environ.get(account_type.upper() + "_PASSWORD")
+
+    # Create a list of tuples with username and password
     all_accounts = []
     for username in all_platform_username_environ_keys:
         try:
-            all_accounts.append({
-                "username": os.getenv(username),
-                "password": password
-            })
-
+            # Get the username value from the environment variable
+            username_value = os.environ.get(username)
+            # Append the tuple to the list
+            all_accounts.append((username_value, password))
         except (AttributeError, ValueError):
+            # Skip invalid or missing environment variables
             pass
     return all_accounts
 
