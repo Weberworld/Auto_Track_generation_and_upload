@@ -7,7 +7,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver import Keys
 from seleniumbase import Driver
 from seleniumbase.common.exceptions import NoSuchElementException
-
+from seleniumbase import BaseCase
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
 from utils import sign_in_with_google, get_all_downloaded_audios, send_telegram_message
@@ -18,7 +18,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True, no_sandbox=True,  incognito=True)
+        self.driver = Driver(uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True, no_sandbox=True,  incognito=True,)
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -49,6 +49,8 @@ class SoundCloud:
             time.sleep(1)
         # Proceed to sign in with Google
         try:
+            print(self.driver.current_url)
+
             sign_in_with_google(self.driver, username, password)
         except Exception as e:
             print(e)

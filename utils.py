@@ -65,42 +65,6 @@ def parse_prompts() -> dict:
             os.remove(os.path.join(os.getcwd(), "suno_prompts_v2.txt"))
             return parse_prompts()
 
-
-def getNumberOfPlatformAccountsAvailable(account_type: str) -> list:
-    """
-    Queries the environment and return the list the available username and password for a specified account type
-    :param account_type: (suno, soundcloud)
-    """
-    all_given_platform_username_environ_keys = [each for each in os.environ.keys() if
-                                                re.search(f"^{account_type}.+username", each.lower())]
-    all_given_platform_password_environ_keys = [each for each in os.environ.keys() if
-                                                re.search(f"^{account_type}.+password", each.lower())]
-    all_accounts = []
-    for username in all_given_platform_username_environ_keys:
-        for password in all_given_platform_password_environ_keys:
-            try:
-                if account_type.lower() == "soundcloud":
-                    all_soundcloud_link_environ_keys = [each for each in os.environ.keys() if
-                                                        re.search(f"^{account_type}.+link", each.lower())]
-                    for link in all_soundcloud_link_environ_keys:
-                        if (re.search(r"\d\b", username).group()) == (re.search(r"\d\b", password).group()) == (
-                                re.search(r"\d\b", link).group()):
-                            all_accounts.append({
-                                "username": os.getenv(username),
-                                "password": os.getenv(password),
-                                "link": os.getenv(link)
-                            })
-                else:
-                    if (re.search(r"\d\b", username).group()) == (re.search(r"\d\b", password).group()):
-                        all_accounts.append({
-                            "username": os.getenv(username),
-                            "password": os.getenv(password)
-                        })
-            except AttributeError:
-                continue
-    return all_accounts
-
-
 def get_available_platform_accounts_v2(account_type) -> list:
     """
     Get all platform credential that are stored on the virtual environment
@@ -159,26 +123,22 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
+    driver.sleep(3)
     print("Enter username")
-    print(driver.current_url)
+    print(driver.page_source)
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     print("Waiting for continue btn")
-    print(driver.get_text("h2"))
-
 
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
     # driver.sleep(3)
     print("Clicked username continue btn")
-    print(driver.get_text("h2"))
 
 
     # Type password
     print("Enter password")
-    print(driver.get_text("h2"))
 
     driver.type("div#password > div > div > div > input", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button", timeout=Settings.TIMEOUT)
-    print(driver.get_text("h2"))
 
     print("Enter password continue btn")
     driver.sleep(3)
