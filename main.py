@@ -40,7 +40,6 @@ def automation_process():
             print(suno_thread.name + " started")
             all_suno_threads.append(suno_thread)
             time.sleep(2)
-            break
 
         # Wait for all suno thread to finish
         for suno_thread in all_suno_threads:
