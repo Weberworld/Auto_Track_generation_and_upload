@@ -18,7 +18,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True, incognito=True)
+        self.driver = Driver(uc=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True, no_sandbox=True,  incognito=True)
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -37,7 +37,7 @@ class SoundCloud:
             self.driver.close()
             return
 
-        self.driver.get(link)
+        self.driver.uc_open(link)
         print("Logging in with google")
         self.result['account'] = username
         google_sign_option = wait_for_elements_presence(self.driver,
@@ -50,7 +50,8 @@ class SoundCloud:
         # Proceed to sign in with Google
         try:
             sign_in_with_google(self.driver, username, password)
-        except Exception:
+        except Exception as e:
+            print(e)
             return self.login(link, username, password, (retry - 1))
 
         secs_waited_for = 0

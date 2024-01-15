@@ -162,6 +162,7 @@ class SunoAI:
                 store_into.append(track_details)
                 self.driver.sleep(2)
             self.driver.sleep(5)
+            break
 
 
 def run_suno_bot(username, password, prompt, store):

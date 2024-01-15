@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from datetime import datetime
 import requests
 from settings import Settings
@@ -158,19 +159,28 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
+    print(driver.get_text("h2"))
     print("Enter username")
 
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     print("Waiting for continue btn")
+    print(driver.get_text("h2"))
+
 
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
     # driver.sleep(3)
     print("Clicked username continue btn")
+    print(driver.get_text("h2"))
+
 
     # Type password
     print("Enter password")
+    print(driver.get_text("h2"))
+
     driver.type("div#password > div > div > div > input", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button", timeout=Settings.TIMEOUT)
+    print(driver.get_text("h2"))
+
     print("Enter password continue btn")
     driver.sleep(3)
 
