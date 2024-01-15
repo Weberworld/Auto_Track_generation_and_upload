@@ -159,9 +159,8 @@ def sign_in_with_google(driver, username, password):
     :param password: Account password
 
     """
-    print(driver.get_text("h2"))
     print("Enter username")
-
+    print(driver.current_url)
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     print("Waiting for continue btn")
     print(driver.get_text("h2"))
