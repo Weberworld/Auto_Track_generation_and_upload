@@ -45,7 +45,6 @@ def automation_process():
                 suno_thread.join()
             if end_index >= len(all_suno_accounts):
                 break
-            break
 
             start_index = end_index
             end_index += Settings.CONCURRENT_PROCESS
@@ -68,20 +67,17 @@ def automation_process():
                 all_soundcloud_threads.append(soundcloud_thread)
                 time.sleep(2)
 
-
             # Wait for all suno thread to finish
             for soundcloud_thread in all_soundcloud_threads:
                 soundcloud_thread.join()
 
             if end_index >= len(all_soundcloud_account):
                 break
-            break
             start_index = end_index
             end_index += Settings.CONCURRENT_PROCESS
 
         delete_downloaded_files()
         send_daily_statistics(all_downloaded_audios_info, all_suno_accounts, genre_used, result_from_soundcloud)
-        break
         # print(f"\n\nWaiting for the next {Settings.INTERVAL_IN_HOURS} hours before next session")
         time.sleep(60)
     # Send the statistical report for the whole day process
@@ -94,4 +90,3 @@ if __name__ == "__main__":
     sched.start()
     while True:
         time.sleep(1)
-# automation_process()
