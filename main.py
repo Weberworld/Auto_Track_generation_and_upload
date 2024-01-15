@@ -8,16 +8,18 @@ from utils import parse_prompts, get_available_platform_accounts_v2, delete_down
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from sunodownloads.sono_ai_spider import run_suno_bot
 
-# sched = BackgroundScheduler()
+sched = BackgroundScheduler()
 
 
-# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=1)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_account = get_available_platform_accounts_v2("soundcloud")
     result_from_soundcloud = list()
     genre_used = ""
+    print(f"Got {len(all_suno_accounts)} Suno accounts")
+    print(f"Got {len(all_soundcloud_account)} Soundcloud accounts")
     for session in range(Settings.NO_SESSIONS_TO_RUN_DAILY):
         prompt_info = parse_prompts()
         genre_used = prompt_info["genre"]
@@ -38,7 +40,6 @@ def automation_process():
                 print(suno_thread.name + " started")
                 all_suno_threads.append(suno_thread)
                 time.sleep(2)
-                break
 
             # Wait for all suno thread to finish
             for suno_thread in all_suno_threads:
@@ -67,7 +68,7 @@ def automation_process():
                 print(soundcloud_thread.name + " started")
                 all_soundcloud_threads.append(soundcloud_thread)
                 time.sleep(2)
-                break
+
 
             # Wait for all suno thread to finish
             for soundcloud_thread in all_soundcloud_threads:
@@ -89,5 +90,9 @@ def automation_process():
     send_daily_statistics(all_downloaded_audios_info, all_suno_accounts, genre_used, result_from_soundcloud)
 
 
-# sched.start()
-automation_process()
+if __name__ == "__main__":
+    print("Operation Scheduled !!")
+    sched.start()
+    while True:
+        time.sleep(1)
+# automation_process()

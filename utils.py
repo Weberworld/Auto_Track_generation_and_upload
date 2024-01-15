@@ -269,6 +269,7 @@ def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: l
 
 
 def rename_downloaded_audio_file(filename, new_filename):
+    print("Renaming downloaded audio")
     try:
         dir_path = os.path.join(os.getcwd(), "downloaded_files")
 

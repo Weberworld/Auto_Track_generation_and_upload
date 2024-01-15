@@ -197,7 +197,6 @@ class SoundCloud:
         print("Synchronizing ...")
         self.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         try:
-            # self.driver.sleep(20)
             self.driver.execute_script('document.querySelector("#right-before-content > div > div > button").click()')
             print("Waiting for a minute for soundcloud synchronization")
             self.driver.sleep(60)
@@ -219,7 +218,6 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
         soundcloud_bot = SoundCloud()
         soundcloud_bot.login(link, username, password)
         soundcloud_bot.upload_tracks(store)
-        time.sleep(1000)
         if soundcloud_bot.sync_soundcloud_tracks():
             soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
             soundcloud_bot.monetize_track()

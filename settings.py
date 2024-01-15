@@ -16,4 +16,4 @@ class Settings:
 
     CONCURRENT_PROCESS = 5
 
-    MAX_RETRY = 5
+    MAX_RETRY = 2

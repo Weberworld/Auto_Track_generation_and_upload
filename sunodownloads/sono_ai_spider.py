@@ -1,5 +1,4 @@
 import re
-from selenium.common import StaleElementReferenceException
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
 from settings import Settings
 from seleniumbase import Driver
@@ -13,7 +12,7 @@ class SunoAI:
         self.driver.set_window_size(1200, 800)
 
     # Login into suno
-    def sign_in(self, username, password, max_retry=5):
+    def sign_in(self, username, password, max_retry=Settings.MAX_RETRY):
         """
         Opens the sign-in page on suno and sign in to an account using a Microsoft account credential
         :param max_retry:
@@ -133,11 +132,16 @@ class SunoAI:
                 "return (document.querySelector('div.css-rdnx5m > img').getAttribute('src'))")
             track_title: str = scraped_details[0][index].text
             # Check if the title exists in the formally downloaded track titles
+            print(track_title)
             for each in store_into:
                 if each['title'] in track_title:
+
+                    print("Found Duplicated")
+                    print(f"Previous track {each['title']}")
+                    print(f"New track {track_title}")
                     # Add extra text to the duplicated track title
-                    new_track_title = (track_title[0:-3] + " 2nd version")
-                    rename_downloaded_audio_file(track_title, new_track_title)
+                    new_track_title = (track_title + " 2nd version")
+                    rename_downloaded_audio_file(track_title + " (1)", new_track_title)
                     track_title = new_track_title
 
             # Download the track image
