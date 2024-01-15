@@ -32,6 +32,7 @@ class SoundCloud:
         :param password: Account password
         """
         if retry == 0:
+            print(f"Retrying countdown {retry}")
             self.driver.close()
             return
 
@@ -64,7 +65,7 @@ class SoundCloud:
             else:
                 print("retry login")
                 return self.login(link, username, password, (retry - 1))
-            break
+            continue
 
         self.driver.sleep(2)
         print("Login success")

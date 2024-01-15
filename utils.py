@@ -126,7 +126,6 @@ def sign_in_with_google(driver, username, password):
     """
     driver.sleep(3)
     print("Enter username")
-    print(driver.page_source)
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
     print("Waiting for continue btn")
 
