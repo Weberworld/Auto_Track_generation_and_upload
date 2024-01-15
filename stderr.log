@@ -77,3 +77,10 @@ OSError: [WinError 6] The handle is invalid
 2024-01-15 14:20:12,977  --  WARNING -- Retrying du
 2024-01-15 16:59:59,919  --  INFO -- Handled Unknown Exception
 2024-01-15 16:59:59,919  --  WARNING -- Retrying du
+2024-01-15 18:14:04,726  --  ERROR -- Error terminating service process.
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\selenium\webdriver\common\service.py", line 170, in _terminate_process
+    self.process.terminate()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1671, in terminate
+    _winapi.TerminateProcess(self._handle, 1)
+OSError: [WinError 6] The handle is invalid

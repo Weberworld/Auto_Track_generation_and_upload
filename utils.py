@@ -208,24 +208,23 @@ def send_telegram_message(message: str):
         pass
 
 
-def send_daily_statistics(all_downloaded_audios_info: list, all_suno_accounts: list, genre: str,
+def send_daily_statistics(no_of_tracks_downloaded: int, all_suno_accounts: list, genre: str,
                           result_from_soundcloud: list):
     """
     Send a statistical telegram report of daily process routine
-    :param all_downloaded_audios_info: List of all downloaded tracks  info
+    :param no_of_tracks_downloaded: Number of all downloaded tracks  info
     :param all_suno_accounts: List of dicts containing all available suno accounts
     :param genre: Genre name used
     :param result_from_soundcloud: List of all result the soundcloud bot returns
     :return:
     """
     date = datetime.now().date().strftime("%d/%m/%Y")
-    total_songs = len(all_downloaded_audios_info)
     total_suno_accounts = len(all_suno_accounts)
 
     telegram_message = f"🎶 <b>Résumé de la production musicale - <i>{date}</i></b> 🎶\n\n"
     telegram_message += f"🌐 <b>Statistiques globales - Comptes Suno AI</b>\n\n"
     telegram_message += f"— Nom du genre utilisé : <i>{genre}</i>\n"
-    telegram_message += f"— Nombre total de chansons créées : <i>{total_songs}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
+    telegram_message += f"— Nombre total de chansons créées : <i>{no_of_tracks_downloaded}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
     telegram_message += f"— Comptes Suno AI utilisés : <i>{total_suno_accounts}</i>\n\n"
     telegram_message += f"📝 <b>Détails par compte SoundCloud</b>\n\n"
 

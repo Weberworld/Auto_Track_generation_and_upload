@@ -69,7 +69,6 @@ def automation_process():
 
             if soundcloud_end_index >= len(all_soundcloud_account):
                 break
-            break
             soundcloud_start_index = soundcloud_end_index
             soundcloud_end_index += Settings.CONCURRENT_PROCESS
 
@@ -77,14 +76,13 @@ def automation_process():
 
         if suno_end_index >= len(all_suno_accounts):
             break
-        break
 
         suno_start_index = suno_end_index
         suno_end_index += Settings.CONCURRENT_PROCESS
 
     print("Sending Message")
     # Send the statistical report for the whole day process
-    send_daily_statistics(all_downloaded_audios_info, all_suno_accounts, genre_used, result_from_soundcloud)
+    send_daily_statistics(len(all_downloaded_audios_info), all_suno_accounts, genre_used, result_from_soundcloud)
 
     print("done")
 
