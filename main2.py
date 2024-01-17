@@ -11,6 +11,9 @@ from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_downloaded_files
 
 sched = BlockingScheduler()
+# Connect to the redis server
+r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
+r.flushall()
 
 
 def wait_randomly():
@@ -18,12 +21,8 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=15, minute=40)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=16, minute=30)
 def automation_process():
-
-    # Connect to the redis server
-    r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
-
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_accounts = get_available_platform_accounts_v2("soundcloud")
     print(f"Got {len(all_suno_accounts)} suno accounts")
@@ -53,7 +52,7 @@ def automation_process():
         else:
             r.set("next_suno_acct_index", (int(current_suno_act_index) + 1))
 
-        while int(current_suno_act_index) < len(all_suno_accounts):
+        while int(current_suno_act_index) <= len(all_suno_accounts):
             suno_acct = all_suno_accounts[int(current_suno_act_index)]
             suno_download_result = []
             try:
@@ -97,15 +96,19 @@ def automation_process():
 
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
-                while int(current_soundcloud_acct_index) < len(all_soundcloud_accounts):
+                while int(current_soundcloud_acct_index) <= len(all_soundcloud_accounts):
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
                     running_soundcloud_acct = all_soundcloud_accounts[current_soundcloud_acct_index]
                     soundcloud_results = []
-                    run_soundcloud_bot(
-                        soundcloud_link, running_soundcloud_acct[0],
-                        running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
-                    )
+                    try:
+                        run_soundcloud_bot(
+                            soundcloud_link, running_soundcloud_acct[0],
+                            running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
+                        )
+                    finally:
+                        pass
+
                     wait_randomly()
                     # Store the soundcloud result on the redis server
                     for result in soundcloud_results:
@@ -128,12 +131,16 @@ def automation_process():
         except TypeError:
             no_of_downloaded_tracks = 0
         soundcloud_results = [json.loads(result) for result in r.lrange("soundcloud_results", 0, -1)]
-        print("Sending result stats ...")
-        send_daily_statistics(no_of_downloaded_tracks, len(all_suno_accounts), genre_used, soundcloud_results)
+        # Send the alert notification if other dynos has not sent it
+        try:
+            notification_sent = bool(r.get("notification_set"))
+        except TypeError:
+            notification_sent = False
+        if not notification_sent:
+            print("Sending result stats ...")
+            send_daily_statistics(no_of_downloaded_tracks, len(all_suno_accounts), genre_used, soundcloud_results)
     else:
         print("No Soundcloud account or Suno account found !!")
-
-    r.flushall()
 
 
 sched.start()
