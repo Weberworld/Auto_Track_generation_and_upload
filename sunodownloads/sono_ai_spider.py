@@ -1,15 +1,20 @@
 import re
+from seleniumbase import Driver
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
 from settings import Settings
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
 
 
 class SunoAI:
-    def __init__(self, driver):
+    def __init__(self):
         """
-        :param driver: Seleniumbase driver object
+        # :param driver: Seleniumbase driver object
         """
-        self.driver = driver
+        # self.driver = driver
+        self.driver = Driver(
+            uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+            no_sandbox=True, incognito=True, user_data_dir=None
+        )
         self.driver.set_window_size(1920, 1080)
 
     # Login into suno
@@ -175,24 +180,24 @@ class SunoAI:
             self.driver.sleep(5)
 
 
-def run_suno_bot(driver, username, password, prompt, store):
+def run_suno_bot(username, password, prompt, store):
     """
     Runs the Suno Ai bot
-    :param driver: Seleniumbase webdriver object
     :param username: Microsoft username
     :param password: Microsoft password
     :param prompt: List of prompts to use to create tracks on Suno AI
     :param store: List to store all downloaded tracks info
     """
     try:
-        suno_bot = SunoAI(driver)
+        suno_bot = SunoAI()
         suno_bot.sign_in(username, password)
         suno_bot.run(username, prompt, store)
         if Settings.USE_LOG_OUT:
             suno_bot.sign_out()
             suno_bot.driver.delete_all_cookies()
+            suno_bot.driver.quit()
         else:
-            suno_bot.driver.close()
+            suno_bot.driver.quit()
     except Exception as e:
         print("Got exception from suno")
         print(e)

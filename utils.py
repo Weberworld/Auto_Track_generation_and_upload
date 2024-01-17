@@ -198,6 +198,24 @@ def delete_downloaded_files():
             os.remove(abs_img_path)
 
 
+def delete_uploaded_files(all_uploads_file_info):
+    """
+    Deletes all uploaded audios and images
+    @param all_uploads_file_info: List of the suno downloads results
+    """
+    track_dir = "downloaded_files/"
+    images_dir = "downloaded_files/images/"
+
+    for each in all_uploads_file_info:
+        file_path = track_dir + each['title'] + ".mp3"
+        img_path = images_dir + each['title'] + ".png"
+        if os.path.exists(file_path):
+            os.remove(os.path.join(os.getcwd(), file_path))
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+
+delete_uploaded_files([{"title": "testing"}])
 def send_telegram_message(message: str):
     """
     Sends a message to a telegram account
