@@ -1,8 +1,7 @@
 import logging
-import time
 
 from settings import Settings
-from selenium.common import TimeoutException, NoSuchElementException, ElementNotInteractableException
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,9 +10,6 @@ logging.basicConfig(filename="stderr.log", format="%(asctime)s  --  %(levelname)
 logger = logging.getLogger()
 
 logger.setLevel(logging.INFO)
-
-
-MAX_RETRIES = 5
 
 
 def retry_func(func, no_of_retries, *args, **kwargs):
