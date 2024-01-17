@@ -34,6 +34,7 @@ class SoundCloud:
         :param password: Account password
         :param retry:
         """
+        print(f"Logging in to Soundcloud with: {username}")
         if retry == 0:
             print(f"Retrying countdown {retry}")
             self.driver.close()
@@ -46,7 +47,6 @@ class SoundCloud:
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
             0]
         google_sign_option.click()
-        print("Clicked on google sign in")
         while re.search(f"^{SOUND_CLOUD_BASE_URL}", self.driver.current_url):
             time.sleep(1)
         # Proceed to sign in with Google

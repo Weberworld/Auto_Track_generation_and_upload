@@ -18,7 +18,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=14)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=14, minute=40)
 def automation_process():
 
     # Connect to the redis server
@@ -83,8 +83,6 @@ def automation_process():
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
             if (int(r.get('next_suno_acct_index')) % 5) == 0:
-
-                wait_randomly()
 
                 current_soundcloud_acct_index: int = r.get("next_soundcloud_acct_index")
                 if not current_soundcloud_acct_index:
