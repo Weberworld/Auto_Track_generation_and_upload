@@ -98,10 +98,10 @@ def automation_process():
                     # This shows this is the first dyno to run soundcloud. Set the next index for the next dyno
                     r.set("next_soundcloud_acct_index", 1)
                     current_soundcloud_acct_index = 0
-                elif int(current_soundcloud_acct_index) < len(all_soundcloud_accounts):
+                elif int(current_soundcloud_acct_index) < (len(all_soundcloud_accounts) - 1):
                     r.set("next_soundcloud_acct_index", (int(current_soundcloud_acct_index) + 1))
                 else:
-                    r.set("next_soundcloud_acct_index", 0)
+                    continue
 
                 print(f"Soundcloud index to use: {current_soundcloud_acct_index}")
 
@@ -123,7 +123,6 @@ def automation_process():
                         )
                     except Exception:
                         print("Got exception from Soundcloud")
-                        pass
 
                     else:
                         wait_randomly()
@@ -131,7 +130,7 @@ def automation_process():
                         for result in soundcloud_results:
                             r.lpush("soundcloud_results", json.dumps(result))
                     finally:
-                        Settings.DRIVER.close()
+                        Settings.DRIVER.quit()
                         Settings.DRIVER = Driver(uc=True, undetectable=True, headless2=Settings.HEADLESS,
                                                  guest_mode=True, disable_gpu=True,
                                                  no_sandbox=True, incognito=True, user_data_dir=None
@@ -141,14 +140,14 @@ def automation_process():
                     # Set the next soundcloud account index to run
                     current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
                     r.set("next_soundcloud_acct_index", (current_soundcloud_acct_index + 1))
-
+                r.set("next_soundcloud_acct_index", 0)
                 # Delete the stored information about the uploaded tracks
                 r.delete("suno_download_results")
                 delete_downloaded_files()
 
             current_suno_act_index = int(r.get("next_suno_acct_index"))
             r.set("next_suno_acct_index", (current_suno_act_index + 1))
-        Settings.DRIVER.close()
+        Settings.DRIVER.quit()
 
         # Send the report of the whole activities to the set telegram user
         try:
