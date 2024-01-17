@@ -195,5 +195,5 @@ def run_suno_bot(driver, username, password, prompt, store):
             suno_bot.driver.close()
     except Exception as e:
         print("Got exception from suno")
-        print(e.args[0])
+        print(e)
         pass
