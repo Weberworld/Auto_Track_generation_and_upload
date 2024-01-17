@@ -1,6 +1,5 @@
 import os
 import re
-import time
 from datetime import datetime
 import requests
 from settings import Settings
@@ -74,16 +73,6 @@ def get_available_platform_accounts_v2(account_type) -> list:
     :param account_type: (suno, soundcloud)
     """
 
-    def get_available_platform_accounts_v2(account_type) -> list:
-        """
-        Get all platform credentials stored in the virtual environment.
-        This assumes that the password is the same for all platform accounts.
-
-
-
-        :param account_type: (suno, soundcloud)
-        """
-
     # Get environment variables that match the account type
     all_platform_username_environ_keys = [key for key in os.environ.keys() if
                                           key.startswith(account_type.upper() + "_USERNAME_")]
@@ -138,21 +127,16 @@ def sign_in_with_google(driver, username, password):
 
     """
     driver.sleep(3)
-    print("Enter username")
     driver.type("input#identifierId", username, timeout=Settings.TIMEOUT)
-    print("Waiting for continue btn")
 
     driver.sleep(3)
     driver.click_if_visible("div#identifierNext > div > button", timeout=Settings.TIMEOUT)
-    print("Clicked username continue btn")
 
     # Type password
     driver.sleep(3)
-    print("Enter password")
     driver.type("div#password > div > div > div > input", password, timeout=Settings.TIMEOUT)
     driver.click_if_visible("#passwordNext > div > button", timeout=Settings.TIMEOUT)
 
-    print("Enter password continue btn")
     driver.sleep(3)
 
 
@@ -164,14 +148,22 @@ def download_image(link, image_name):
     :return: Returns the path to the image location
     """
 
-    with open("downloaded_files/images/" + image_name + ".png", mode="wb") as handle:
+    # Define the path to the images folder
+    images_path = "downloaded_files/images/"
+
+    # Check if the images folder exists, if not create it
+    if not os.path.exists(images_path):
+        os.makedirs(images_path)
+
+    # Open the image file in write binary mode
+    with open(images_path + image_name + ".png", mode="wb") as handle:
         res = requests.get(link, stream=True)
 
         for block in res.iter_content(1024):
             if not block:
                 break
             handle.write(block)
-    return os.path.join(os.getcwd(), f"downloaded_files/images/{image_name}.png")
+    return os.path.join(os.getcwd(), f"{images_path + image_name}.png")
 
 
 def get_all_downloaded_audios() -> list:
@@ -221,29 +213,28 @@ def send_telegram_message(message: str):
         pass
 
 
-def send_daily_statistics(no_of_tracks_downloaded: int, all_suno_accounts: list, genre: str,
+def send_daily_statistics(no_of_tracks_downloaded: int, no_of_all_suno_accounts: int, genre: str,
                           result_from_soundcloud: list):
     """
     Send a statistical telegram report of daily process routine
     :param no_of_tracks_downloaded: Number of all downloaded tracks  info
-    :param all_suno_accounts: List of dicts containing all available suno accounts
+    :param no_of_all_suno_accounts: Number of all available suno accounts
     :param genre: Genre name used
     :param result_from_soundcloud: List of all result the soundcloud bot returns
     :return:
     """
     date = datetime.now().date().strftime("%d/%m/%Y")
-    total_suno_accounts = len(all_suno_accounts)
 
     telegram_message = f"🎶 <b>Résumé de la production musicale - <i>{date}</i></b> 🎶\n\n"
     telegram_message += f"🌐 <b>Statistiques globales - Comptes Suno AI</b>\n\n"
     telegram_message += f"— Nom du genre utilisé : <i>{genre}</i>\n"
-    telegram_message += f"— Nombre total de chansons créées : <i>{no_of_tracks_downloaded}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
-    telegram_message += f"— Comptes Suno AI utilisés : <i>{total_suno_accounts}</i>\n\n"
+    telegram_message += f"— Nombre total de chansons créées : <i>{no_of_tracks_downloaded}</i>/<i>{no_of_all_suno_accounts * 10}</i> attendues\n"
+    telegram_message += f"— Comptes Suno AI utilisés : <i>{no_of_all_suno_accounts}</i>\n\n"
     telegram_message += f"📝 <b>Détails par compte SoundCloud</b>\n\n"
 
     for index, upload_details in enumerate(result_from_soundcloud, start=1):
         telegram_message += f"🔹 Compte SoundCloud <i>{index}</i> - <i>{upload_details['account']}</i>\n"
-        telegram_message += f"— Chansons téléversées : <i>{upload_details['upload_count']}</i>/<i>{total_suno_accounts * 10}</i> attendues\n"
+        telegram_message += f"— Chansons téléversées : <i>{upload_details['upload_count']}</i>/<i>{no_of_all_suno_accounts * 10}</i> attendues\n"
         telegram_message += f"— Chansons monétisées : <i>{upload_details['monetization_count']}</i>\n"
         if index < len(result_from_soundcloud):
             telegram_message += f"——————————————————————————\n"

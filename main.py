@@ -2,15 +2,15 @@ import os
 import time
 from threading import Thread
 from settings import Settings
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from utils import parse_prompts, get_available_platform_accounts_v2, delete_downloaded_files, send_daily_statistics
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from sunodownloads.sono_ai_spider import run_suno_bot
 
-# sched = BackgroundScheduler()
+sched = BlockingScheduler()
 
 
-# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=12, minute=30)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
@@ -34,7 +34,7 @@ def automation_process():
             password = account[1]
             suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
                                  target=run_suno_bot,
-                                 args=(username, password, all_daily_prompts,
+                                 args=(Settings.DRIVER, username, password, all_daily_prompts,
                                        all_downloaded_audios_info))
             suno_thread.start()
             print(suno_thread.name + " started")
@@ -83,16 +83,9 @@ def automation_process():
 
     print("Sending Message")
     # Send the statistical report for the whole day process
-    send_daily_statistics(len(all_downloaded_audios_info), all_suno_accounts, genre_used, result_from_soundcloud)
+    send_daily_statistics(len(all_downloaded_audios_info), len(all_suno_accounts), genre_used, result_from_soundcloud)
 
     print("done")
 
 
-# if __name__ == "__main__":
-#     print("Operation Scheduled !!")
-#     sched.start()
-#     while True:
-#         time.sleep(1)
-
-
-automation_process()
+sched.start()

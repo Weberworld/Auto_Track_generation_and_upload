@@ -1,15 +1,16 @@
 import re
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
 from settings import Settings
-from seleniumbase import Driver
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
 
 
 class SunoAI:
-    def __init__(self):
-
-        self.driver = Driver(uc=True, headless=Settings.HEADLESS, disable_gpu=True, no_sandbox=True)
-        self.driver.set_window_size(1200, 800)
+    def __init__(self, driver):
+        """
+        :param driver: Seleniumbase driver object
+        """
+        self.driver = driver
+        self.driver.set_window_size(1920, 1080)
 
     # Login into suno
     def sign_in(self, username, password, max_retry=Settings.MAX_RETRY):
@@ -20,6 +21,7 @@ class SunoAI:
         :param password: Account password
         :return:
         """
+        print(f"Starting Suno process for {username}")
         if max_retry <= 0:
             self.driver.close()
             return
@@ -40,6 +42,16 @@ class SunoAI:
             print(f"Unable to login {username}. Retrying ...")
             return self.sign_in(username, password, (max_retry - 1))
 
+    def sign_out(self):
+        """
+        Sign out from a logged in suno account
+        """
+        # Click on the menu option button
+        wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonTrigger")[0].click()
+        # Click sign out button
+        wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonPopoverActionButton__signOut")[0].click()
+        self.driver.sleep(5)
+
     def create_song(self, prompt):
         """
         Create a music on suno.ai using the given prompt as the track description
@@ -59,11 +71,10 @@ class SunoAI:
                       -no_of_tracks::]
         return select_btns
 
-    def select_an_option_from_a_track(self, option_sel_btn_ele, option: int, download=False):
+    def select_an_option_from_a_track(self, option_sel_btn_ele, option: int):
         """
         Selects an option from the track selection list
         :param option_sel_btn_ele:
-        :param download: boolean
         :param option: index of the option to select
         :return:
         """
@@ -98,7 +109,7 @@ class SunoAI:
         :param track_opt_btn_ele: Track options selection element
         """
         print("Downloading track ....")
-        self.select_an_option_from_a_track(track_opt_btn_ele, option=3, download=True)
+        self.select_an_option_from_a_track(track_opt_btn_ele, option=3)
 
     def scrap_details(self) -> tuple:
         """
@@ -162,16 +173,27 @@ class SunoAI:
                 store_into.append(track_details)
                 self.driver.sleep(2)
             self.driver.sleep(5)
-            break
 
 
-def run_suno_bot(username, password, prompt, store):
+def run_suno_bot(driver, username, password, prompt, store):
+    """
+    Runs the Suno Ai bot
+    :param driver: Seleniumbase webdriver object
+    :param username: Microsoft username
+    :param password: Microsoft password
+    :param prompt: List of prompts to use to create tracks on Suno AI
+    :param store: List to store all downloaded tracks info
+    """
     try:
-        suno_bot = SunoAI()
+        suno_bot = SunoAI(driver)
         suno_bot.sign_in(username, password)
         suno_bot.run(username, prompt, store)
-        suno_bot.driver.close()
+        if Settings.USE_LOG_OUT:
+            suno_bot.sign_out()
+            suno_bot.driver.delete_all_cookies()
+        else:
+            suno_bot.driver.close()
     except Exception as e:
         print("Got exception from suno")
-        print(e)
+        print(e.args[0])
         pass

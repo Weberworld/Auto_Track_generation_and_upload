@@ -1,11 +1,9 @@
-import os
 import re
 import time
 import pyperclip
 
 from selenium.webdriver import Keys
 from seleniumbase import Driver
-
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
 from utils import sign_in_with_google, get_all_downloaded_audios
@@ -16,12 +14,16 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self):
-        self.driver = Driver(uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True, no_sandbox=True,  incognito=True,)
+        self.driver = Driver(
+                            uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+                            no_sandbox=True, incognito=True,
+                            )
         self.result = {
             "account": "",
             "upload_count": 0,
             "monetization_count": 0
         }
+        self.driver.set_window_size(1920, 1080)
 
     def login(self, link, username, password, retry=Settings.MAX_RETRY):
         """
@@ -30,6 +32,7 @@ class SoundCloud:
         :param link: A soundcloud redirect link with client_id, request_type data
         :param username: Account username
         :param password: Account password
+        :param retry:
         """
         if retry == 0:
             print(f"Retrying countdown {retry}")
@@ -70,6 +73,19 @@ class SoundCloud:
         self.driver.sleep(2)
         print("Login success")
 
+    def log_out(self):
+        """
+        Logs out from a logged in soundcloud account
+        """
+        # Clicks on the menu option
+        wait_for_elements_to_be_clickable(self.driver, "#headlessui-menu-button-6")[0].click()
+        # Click on the sign-out button
+        wait_for_elements_to_be_clickable(self.driver, "#headlessui-menu-item-11")[0].click()
+        # Wait for timeout until the log-out is completed
+        sec_waited_for = 0
+        while self.driver.current_url == Settings.SOUND_CLOUD_ARTIST_BASE_URL and sec_waited_for < Settings.TIMEOUT:
+            time.sleep(1)
+
     @handle_exception(retry=True)
     def upload_tracks(self, downloaded_audios_info):
         """
@@ -79,38 +95,32 @@ class SoundCloud:
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
 
         print("Uploading tracks ...")
+
         # Accept cookies
-        try:
-            wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
-            print("Clicked on accept cookies")
-        except Exception:
-            pass
-        try:
-            self.driver.click_if_visible(".loginButton", timeout=Settings.TIMEOUT)
-            print("Cliked on sign in")
-        except Exception:
-            print("Cannot click sign in from upload")
-            pass
+        wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
+
         self.driver.sleep(5)
+
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
+
         # Click on not to create playlist
-        try:
-            print("Do not create playlist")
-            wait_for_elements_presence(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
-            self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
-        except Exception as e:
-            pass
+        print("Do not create playlist")
+        wait_for_elements_to_be_clickable(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
+        self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
+
         self.driver.sleep(2)
+
         # Upload the audio files
         print("Uploading files")
-        wait_for_elements_to_be_clickable(self.driver, "input.chooseFiles__input.sc-visuallyhidden")[0].send_keys("\n".join(selected_audios))
+        wait_for_elements_to_be_clickable(self.driver, "input.chooseFiles__input.sc-visuallyhidden")[0].send_keys(
+            "\n".join(selected_audios))
         genre_name = downloaded_audios_info[0]['genre']
 
         self.driver.sleep(1)
         # Wait for all audio to upload
         upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
-        print("processing")
+        print("Processing Uploads ... ")
         while "processing" in upload_status.lower() or "uploading" in upload_status.lower():
             self.driver.sleep(1)
             upload_status = self.driver.get_text("span.uploadButton__title")
@@ -119,8 +129,8 @@ class SoundCloud:
                                                         'div.baseFields__data > div.baseFields__title > div.textfield > div.textfield__inputWrapper > input')
         all_uploads_img = wait_for_elements_presence(self.driver, 'input.imageChooser__fileInput.sc-visuallyhidden')
         all_uploads_tags = wait_for_elements_presence(self.driver, 'input.tagInput__input.tokenInput__input')
-        all_uploaded_song_save_btn_ele = wait_for_elements_presence(self.driver,
-                                                                    "div.activeUpload__formButtons.sc-button-toolbar > button.sc-button-cta.sc-button")
+        all_uploaded_song_save_btn_ele = wait_for_elements_to_be_clickable(self.driver,
+                                                                           "div.activeUpload__formButtons.sc-button-toolbar > button.sc-button-cta.sc-button")
         print(f"Got {len(all_uploaded_song_save_btn_ele)} save btns")
         for each in all_uploads_titles:
             for audio_info in downloaded_audios_info:
@@ -213,7 +223,7 @@ class SoundCloud:
         print("Synchronizing ...")
         self.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         try:
-            self.driver.execute_script('document.querySelector("#right-before-content > div > div > button").click()')
+            wait_for_elements_presence(self.driver, "#right-before-content > div > div > button")[0].click()
             print("Waiting for a minute for soundcloud synchronization")
             self.driver.sleep(60)
             return True
@@ -239,7 +249,6 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
             soundcloud_bot.monetize_track()
         soundcloud_result.append(soundcloud_bot.result)
         soundcloud_bot.driver.close()
-    except Exception as e:
+    except Exception:
         print("Exception from Soundcloud")
-        print(e)
         pass
