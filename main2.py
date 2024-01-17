@@ -21,7 +21,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=17, minute=20)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
 def automation_process():
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_accounts = get_available_platform_accounts_v2("soundcloud")
