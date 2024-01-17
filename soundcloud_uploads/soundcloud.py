@@ -113,6 +113,7 @@ class SoundCloud:
 
         # Upload the audio files
         print("Uploading files")
+        return
         wait_for_elements_to_be_clickable(self.driver, "input.chooseFiles__input.sc-visuallyhidden")[0].send_keys(
             "\n".join(selected_audios))
         genre_name = downloaded_audios_info[0]['genre']

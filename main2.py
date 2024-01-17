@@ -11,9 +11,6 @@ from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_downloaded_files
 
 sched = BlockingScheduler()
-# Connect to the redis server
-r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
-r.flushall()
 
 
 def wait_randomly():
@@ -23,6 +20,11 @@ def wait_randomly():
 
 @sched.scheduled_job('cron', day_of_week='mon-sun', hour=17, minute=20)
 def automation_process():
+
+    # Connect to the redis server
+    r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
+    r.flushall()
+
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_accounts = get_available_platform_accounts_v2("soundcloud")
     print(f"Got {len(all_suno_accounts)} suno accounts")
@@ -101,12 +103,15 @@ def automation_process():
 
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
-                while int(current_soundcloud_acct_index) <= len(all_soundcloud_accounts):
+                while (int(current_soundcloud_acct_index)) <= len(all_soundcloud_accounts):
+                    print("Preparing to start process")
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
-                    running_soundcloud_acct = all_soundcloud_accounts[current_soundcloud_acct_index]
+                    running_soundcloud_acct = all_soundcloud_accounts[int(current_soundcloud_acct_index)]
+                    print("Gotten soundcloud account")
                     soundcloud_results = []
                     try:
+                        print("Soundcloud Running initiated")
                         run_soundcloud_bot(
                             soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
