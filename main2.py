@@ -18,7 +18,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=14)
 def automation_process():
 
     # Connect to the redis server
