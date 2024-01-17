@@ -133,12 +133,14 @@ def automation_process():
         soundcloud_results = [json.loads(result) for result in r.lrange("soundcloud_results", 0, -1)]
         # Send the alert notification if other dynos has not sent it
         try:
-            notification_sent = bool(r.get("notification_set"))
+            notification_sent = bool(r.get("notification_sent"))
         except TypeError:
             notification_sent = False
+
         if not notification_sent:
             print("Sending result stats ...")
             send_daily_statistics(no_of_downloaded_tracks, len(all_suno_accounts), genre_used, soundcloud_results)
+            r.set("notification_sent", True)
     else:
         print("No Soundcloud account or Suno account found !!")
 
