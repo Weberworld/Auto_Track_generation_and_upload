@@ -39,12 +39,11 @@ def handle_exception(retry=False):
                 return func(*args, **kwargs)
 
             except Exception as e:
-                print(e)
-                logger.info("Handled Unknown Exception")
+                logger.info(e)
 
                 if retry:
                     print("Retrying function")
-                    logger.log(logging.WARNING, "Retrying du")
+                    logger.log(logging.WARNING, f"Retrying function {func.__name__}")
                     return func(*args, **kwargs)
             finally:
                 pass

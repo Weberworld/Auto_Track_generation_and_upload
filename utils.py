@@ -243,7 +243,6 @@ def send_daily_statistics(no_of_tracks_downloaded: int, no_of_all_suno_accounts:
 
 
 def rename_downloaded_audio_file(filename, new_filename):
-    print("Renaming downloaded audio")
     try:
         dir_path = os.path.join(os.getcwd(), "downloaded_files")
         os.rename(os.path.join(dir_path, (filename + ".mp3")), os.path.join(dir_path, new_filename))

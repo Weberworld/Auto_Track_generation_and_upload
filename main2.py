@@ -82,17 +82,22 @@ def automation_process():
                 r.set("no_of_downloaded_tracks", (int(no_of_downloaded_tracks) + len(suno_download_result)))
 
             wait_randomly()
-
+            print(f"Suno downloads finished for account {suno_acct[0]}")
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
             if ((int(r.get('next_suno_acct_index')) + 1) % 5) == 0:
+                wait_randomly()
+
                 print("Starting soundcloud upload and monetization")
+
                 current_soundcloud_acct_index: int = r.get("next_soundcloud_acct_index")
-                if not current_soundcloud_acct_index:
+                if current_soundcloud_acct_index is None:
                     # This shows this is the first dyno to run soundcloud. Set the next index for the next dyno
                     r.set("next_soundcloud_acct_index", 1)
                     current_soundcloud_acct_index = 0
                 else:
                     r.set("next_soundcloud_acct_index", (int(current_soundcloud_acct_index) + 1))
+
+                print(f"Soundcloud index to use: {current_soundcloud_acct_index}")
 
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
@@ -106,8 +111,9 @@ def automation_process():
                             soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
                         )
-                    finally:
-                        pass
+                    except Exception:
+                        print("Got exception from Soundcloud")
+                        continue
 
                     wait_randomly()
                     # Store the soundcloud result on the redis server

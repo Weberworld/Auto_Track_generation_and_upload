@@ -240,15 +240,12 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
     :param store: List of all downloaded tracks from suno AI bot
     :param soundcloud_result: List to store the result of the soundcloud bot run
     """
-    try:
-        soundcloud_bot = SoundCloud()
-        soundcloud_bot.login(link, username, password)
-        soundcloud_bot.upload_tracks(store)
-        if soundcloud_bot.sync_soundcloud_tracks():
-            soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
-            soundcloud_bot.monetize_track()
-        soundcloud_result.append(soundcloud_bot.result)
-        soundcloud_bot.driver.close()
-    except Exception:
-        print("Exception from Soundcloud")
-        pass
+
+    soundcloud_bot = SoundCloud()
+    soundcloud_bot.login(link, username, password)
+    soundcloud_bot.upload_tracks(store)
+    if soundcloud_bot.sync_soundcloud_tracks():
+        soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
+        soundcloud_bot.monetize_track()
+    soundcloud_result.append(soundcloud_bot.result)
+    soundcloud_bot.driver.close()
