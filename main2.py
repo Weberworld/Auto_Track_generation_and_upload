@@ -104,7 +104,7 @@ def automation_process():
                 while int(current_soundcloud_acct_index) <= len(all_soundcloud_accounts):
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
-                    running_soundcloud_acct = all_soundcloud_accounts[current_soundcloud_acct_index]
+                    running_soundcloud_acct = all_soundcloud_accounts[int(current_soundcloud_acct_index)]
                     soundcloud_results = []
                     try:
                         run_soundcloud_bot(
