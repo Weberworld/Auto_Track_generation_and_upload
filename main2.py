@@ -18,12 +18,13 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=20, minute=5)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=20, minute=10)
 def automation_process():
-
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
     r.flushall()
+
+    wait_randomly()
 
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_accounts = get_available_platform_accounts_v2("soundcloud")
