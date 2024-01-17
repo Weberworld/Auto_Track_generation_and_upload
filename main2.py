@@ -4,6 +4,7 @@ import time
 import redis
 import random
 
+from seleniumbase import Driver
 from apscheduler.schedulers.blocking import BlockingScheduler
 from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
@@ -18,7 +19,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=20, minute=10)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=21, minute=37)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -55,7 +56,7 @@ def automation_process():
         else:
             r.set("next_suno_acct_index", (int(current_suno_act_index) + 1))
 
-        while int(current_suno_act_index) <= len(all_suno_accounts):
+        while int(current_suno_act_index) < len(all_suno_accounts):
             suno_acct = all_suno_accounts[int(current_suno_act_index)]
             suno_download_result = []
             try:
@@ -104,7 +105,7 @@ def automation_process():
 
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
-                while (int(current_soundcloud_acct_index)) <= len(all_soundcloud_accounts):
+                while (int(current_soundcloud_acct_index)) < len(all_soundcloud_accounts):
                     print("Preparing to start process")
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
@@ -114,17 +115,24 @@ def automation_process():
                     try:
                         print("Soundcloud Running initiated")
                         run_soundcloud_bot(
-                            soundcloud_link, running_soundcloud_acct[0],
+                            Settings.DRIVER, soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
                         )
                     except Exception:
                         print("Got exception from Soundcloud")
-                        continue
+                        pass
 
-                    wait_randomly()
-                    # Store the soundcloud result on the redis server
-                    for result in soundcloud_results:
-                        r.lpush("soundcloud_results", json.dumps(result))
+                    else:
+                        wait_randomly()
+                        # Store the soundcloud result on the redis server
+                        for result in soundcloud_results:
+                            r.lpush("soundcloud_results", json.dumps(result))
+                    finally:
+                        Settings.DRIVER.close()
+                        Settings.DRIVER = Driver(uc=True, undetectable=True, headless2=Settings.HEADLESS,
+                                                 guest_mode=True, disable_gpu=True,
+                                                 no_sandbox=True, incognito=True, user_data_dir=None
+                                                 )
 
                     # Set the next soundcloud account index to run
                     current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))

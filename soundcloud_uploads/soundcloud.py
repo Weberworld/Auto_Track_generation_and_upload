@@ -13,11 +13,11 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 
 class SoundCloud:
 
-    def __init__(self):
-        self.driver = Driver(
-                            uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-                            no_sandbox=True, incognito=True,
-                            )
+    def __init__(self, driver):
+        self.driver = driver #Driver(
+                            # uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+                            # no_sandbox=True, incognito=True,
+                            # )
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -232,9 +232,10 @@ class SoundCloud:
             return False
 
 
-def run_soundcloud_bot(link, username, password, store, soundcloud_result: list):
+def run_soundcloud_bot(driver, link, username, password, store, soundcloud_result: list):
     """
     Run the soundcloud action bot
+    :@param driver: Seleniumbase webdriver object
     :param link: Authentication link from soundcloud
     :param username:  registered username
     :param password: Soundcloud password
@@ -242,11 +243,11 @@ def run_soundcloud_bot(link, username, password, store, soundcloud_result: list)
     :param soundcloud_result: List to store the result of the soundcloud bot run
     """
 
-    soundcloud_bot = SoundCloud()
+    soundcloud_bot = SoundCloud(driver)
     soundcloud_bot.login(link, username, password)
     soundcloud_bot.upload_tracks(store)
     if soundcloud_bot.sync_soundcloud_tracks():
         soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         soundcloud_bot.monetize_track()
     soundcloud_result.append(soundcloud_bot.result)
-    soundcloud_bot.driver.close()
+    # soundcloud_bot.driver.close()

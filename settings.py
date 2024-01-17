@@ -1,7 +1,7 @@
 class Settings:
     HEADLESS = True
 
-    TIMEOUT: int = 20
+    TIMEOUT: int = 30
 
     SUNO_BASE_URL = "https://app.suno.ai/"
     NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES = 2
@@ -25,7 +25,7 @@ class Settings:
 
     DRIVER = webDriver(
         uc=True, undetectable=True, headless2=HEADLESS, guest_mode=True, disable_gpu=True,
-        no_sandbox=True, incognito=True,
+        no_sandbox=True, incognito=True, user_data_dir=None
     )
 
 
