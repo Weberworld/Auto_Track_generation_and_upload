@@ -30,6 +30,8 @@ def automation_process():
 
     all_suno_accounts = get_available_platform_accounts_v2("suno")
     all_soundcloud_accounts = get_available_platform_accounts_v2("soundcloud")
+    no_of_downloaded_tracks = 0
+
     print(f"Got {len(all_suno_accounts)} suno accounts")
     print(f"Got {len(all_soundcloud_accounts)} soundcloud accounts")
 
@@ -118,6 +120,10 @@ def automation_process():
                 else:
                     continue
 
+                try:
+                    no_of_downloaded_tracks = int(r.get("no_of_downloaded_tracks"))
+                except TypeError:
+                    no_of_downloaded_tracks = 0
                 print(f"Soundcloud index to use: {current_soundcloud_acct_index}")
 
                 # Upload and monetize tracks on all soundcloud accounts
@@ -147,8 +153,14 @@ def automation_process():
                     else:
                         wait_randomly()
                         # Store the soundcloud result on the redis server
-                        for result in soundcloud_results:
-                            r.lpush("soundcloud_results", json.dumps(result))
+                        # Get the previously stored result from the redis server
+                        previous_stored = [json.loads(item) for item in r.lrange("soundcloud_results", 0, -1)]
+                        for each in previous_stored:
+                            for result in soundcloud_results:
+                                if each["account"] == result["account"]:
+                                    result["upload_count"] += each["upload_count"]
+                                    result["monetization_count"] += each["monetization_count"]
+                                    r.lpush("soundcloud_results", json.dumps(result))
 
                     Settings.DRIVER.quit()
                     Settings.DRIVER = Driver(
@@ -170,10 +182,7 @@ def automation_process():
 
         Settings.DRIVER.quit()
         # Send the report of the whole activities to the set telegram user
-        try:
-            no_of_downloaded_tracks = int(r.get("no_of_downloaded_tracks"))
-        except TypeError:
-            no_of_downloaded_tracks = 0
+
         soundcloud_results = [json.loads(result) for result in r.lrange("soundcloud_results", 0, -1)]
 
         # Send the alert notification if other dynos has not sent it
