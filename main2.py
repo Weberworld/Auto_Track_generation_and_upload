@@ -20,7 +20,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2, minute=38)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -69,9 +69,9 @@ def automation_process():
                         uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
                         no_sandbox=True, incognito=True, user_data_dir=None
                     )
+                # Retry the bot if it fails
                 try:
                     run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
-
                 except Exception:
                     print("Exception from suno")
                     pass

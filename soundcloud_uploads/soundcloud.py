@@ -3,8 +3,7 @@ import time
 import pyperclip
 
 from selenium.webdriver import Keys
-from seleniumbase import Driver
-from selenium.common.exceptions import TimeoutException
+from seleniumbase.common.exceptions import TimeoutException
 
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
@@ -16,10 +15,7 @@ SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 class SoundCloud:
 
     def __init__(self, driver):
-        self.driver = driver #Driver(
-                            # uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-                            # no_sandbox=True, incognito=True,
-                            # )
+        self.driver = driver
         self.result = {
             "account": "",
             "upload_count": 0,
@@ -101,7 +97,7 @@ class SoundCloud:
         print(self.driver.current_url)
         # Accept cookies
         try:
-            wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
+            self.driver.click_if_visible("#onetrust-accept-btn-handler", timeout=10)
             print("Accepted cookies")
         except (TimeoutException, IndexError):
             print("Cannot find cookies")
@@ -109,8 +105,7 @@ class SoundCloud:
 
         self.driver.sleep(5)
         try:
-
-            wait_for_elements_presence(self.driver, ".loginButton")[0].click()
+            self.driver.click_if_visible(".loginButton", timeout=10)
             print("Clicked on sign in button")
         except (TimeoutException, IndexError):
             print("No sign in button was found")
@@ -135,7 +130,6 @@ class SoundCloud:
             "\n".join(selected_audios))
         genre_name = downloaded_audios_info[0]['genre']
         print(f"Genre name is: {genre_name}")
-        return
         self.driver.sleep(1)
         # Wait for all audio to upload
         upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
@@ -242,7 +236,7 @@ class SoundCloud:
         print("Synchronizing ...")
         self.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         try:
-            wait_for_elements_presence(self.driver, "#right-before-content > div > div > button")[0].click()
+            self.driver.click_if_visible("#right-before-content > div > div > button", timeout=Settings.TIMEOUT)
             print("Waiting for a minute for soundcloud synchronization")
             self.driver.sleep(60)
             return True
@@ -253,6 +247,7 @@ class SoundCloud:
 def run_soundcloud_bot(driver, link, username, password, store, soundcloud_result: list):
     """
     Run the soundcloud action bot
+    :@param driver: Seleniumbase webdriver object
     :param link: Authentication link from soundcloud
     :param username:  registered username
     :param password: Soundcloud password

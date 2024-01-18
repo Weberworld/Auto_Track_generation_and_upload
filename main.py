@@ -56,7 +56,7 @@ def automation_process():
                 username = account[0]
                 password = account[1]
                 soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
-                                           args=(os.getenv("SOUNDCLOUD_LINK"), username, password,
+                                           args=(Settings.DRIVER, os.getenv("SOUNDCLOUD_LINK"), username, password,
                                                  all_downloaded_audios_info, result_from_soundcloud)
                                            )
                 soundcloud_thread.start()

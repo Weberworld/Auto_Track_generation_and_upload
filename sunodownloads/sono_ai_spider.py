@@ -1,5 +1,4 @@
 import re
-from seleniumbase import Driver
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
 from settings import Settings
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
@@ -11,10 +10,6 @@ class SunoAI:
         # :param driver: Seleniumbase driver object
         """
         self.driver = driver
-        # self.driver = Driver(
-        #     uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-        #     no_sandbox=True, incognito=True, user_data_dir=None
-        # )
         self.driver.set_window_size(1920, 1080)
 
     # Login into suno
@@ -65,8 +60,8 @@ class SunoAI:
         print("Creating tracks ....")
         self.driver.get(Settings.SUNO_BASE_URL + "create")
         prompt_input_ele = "div.chakra-stack.css-131jemj > div.chakra-stack.css-10k728o > textarea"
-        wait_for_elements_presence(self.driver, prompt_input_ele)  # [0].send_keys(prompt)
-        # self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
+        wait_for_elements_presence(self.driver, prompt_input_ele)[0].send_keys(prompt)
+        self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
 
     @handle_exception(retry=True)
     def get_generated_tracks_selection(self, no_of_tracks) -> list:
@@ -178,12 +173,12 @@ class SunoAI:
                 store_into.append(track_details)
                 self.driver.sleep(2)
             self.driver.sleep(5)
-            break
 
 
 def run_suno_bot(driver, username, password, prompt, store):
     """
     Runs the Suno Ai bot
+    :@param driver: Seleniumbase webdriver
     :param username: Microsoft username
     :param password: Microsoft password
     :param prompt: List of prompts to use to create tracks on Suno AI
@@ -200,4 +195,3 @@ def run_suno_bot(driver, username, password, prompt, store):
         # suno_bot.driver.quit()
     else:
         suno_bot.driver.quit()
-
