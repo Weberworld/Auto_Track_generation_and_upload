@@ -190,7 +190,10 @@ def run_suno_bot(driver, username, password, prompt, store):
     :param store: List to store all downloaded tracks info
     """
     try:
-        suno_bot = SunoAI(driver)
+        try:
+            suno_bot = SunoAI(driver)
+        except Exception:
+            suno_bot = SunoAI(driver)
         suno_bot.sign_in(username, password)
         suno_bot.run(username, prompt, store)
         if Settings.USE_LOG_OUT:

@@ -249,8 +249,11 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
     :param store: List of all downloaded tracks from suno AI bot
     :param soundcloud_result: List to store the result of the soundcloud bot run
     """
+    try:
 
-    soundcloud_bot = SoundCloud(driver)
+        soundcloud_bot = SoundCloud(driver)
+    except Exception:
+        soundcloud_bot = SoundCloud(driver)
     soundcloud_bot.login(link, username, password)
     soundcloud_bot.upload_tracks(store)
     if soundcloud_bot.sync_soundcloud_tracks():
