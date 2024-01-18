@@ -4,6 +4,8 @@ import pyperclip
 
 from selenium.webdriver import Keys
 from seleniumbase import Driver
+from selenium.common.exceptions import TimeoutException
+
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
 from utils import sign_in_with_google, get_all_downloaded_audios
@@ -97,9 +99,15 @@ class SoundCloud:
         print("Uploading tracks ...")
 
         # Accept cookies
+        print("Accepted cookies")
         wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
-
         self.driver.sleep(5)
+        try:
+
+            wait_for_elements_presence(self.driver, ".loginButton")[0].click()
+            print("Clicked on sign in button")
+        except TimeoutException:
+            pass
 
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
@@ -107,8 +115,8 @@ class SoundCloud:
         # Click on not to create playlist
         print("Do not create playlist")
         wait_for_elements_to_be_clickable(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
+        print("Do not create playlist")
         self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
-
         self.driver.sleep(2)
 
         # Upload the audio files
