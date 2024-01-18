@@ -130,11 +130,12 @@ class SoundCloud:
 
         # Upload the audio files
         print("Uploading files")
-        return
+
         wait_for_elements_to_be_clickable(self.driver, "input.chooseFiles__input.sc-visuallyhidden")[0].send_keys(
             "\n".join(selected_audios))
         genre_name = downloaded_audios_info[0]['genre']
-
+        print(f"Genre name is: {genre_name}")
+        return
         self.driver.sleep(1)
         # Wait for all audio to upload
         upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
@@ -245,7 +246,7 @@ class SoundCloud:
             print("Waiting for a minute for soundcloud synchronization")
             self.driver.sleep(60)
             return True
-        except Exception:
+        except (TimeoutException, IndexError):
             return False
 
 
