@@ -118,9 +118,7 @@ class SoundCloud:
 
         # Click on not to create playlist
         print("Do not create playlist")
-        wait_for_elements_to_be_clickable(self.driver, "input.sc-checkbox-input.sc-visuallyhidden")
-        print("Do not create playlist")
-        self.driver.execute_script("document.querySelector('input.sc-checkbox-input.sc-visuallyhidden').click()")
+        self.driver.click_if_visible("input.sc-checkbox-input.sc-visuallyhidden", timeout=Settings.TIMEOUT)
         self.driver.sleep(2)
 
         # Upload the audio files

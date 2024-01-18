@@ -1,0 +1,16 @@
+2024-01-18 16:12:45,607  --  INFO -- Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-01-18 16:12:45,609  --  INFO -- Added job "automation_process" to job store "default"
+2024-01-18 16:12:45,610  --  INFO -- Scheduler started
+2024-01-18 16:14:00,017  --  INFO -- Running job "automation_process (trigger: cron[day_of_week='mon-sun', hour='16', minute='14'], next run at: 2024-01-18 16:14:00 WAT)" (scheduled at 2024-01-18 16:14:00+01:00)
+2024-01-18 16:17:57,562  --  INFO -- list index out of range
+2024-01-18 16:17:57,562  --  WARNING -- Retrying function download_track
+2024-01-18 16:19:46,973  --  ERROR -- Job "automation_process (trigger: cron[day_of_week='mon-sun', hour='16', minute='14'], next run at: 2024-01-19 16:14:00 WAT)" raised an exception
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\apscheduler\executors\base.py", line 125, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\user\Desktop\Upwork Jobs\David_Lee_Tasks\Auto_Track_generation_and_upload\main.py", line 77, in automation_process
+    delete_downloaded_files()
+  File "C:\Users\user\Desktop\Upwork Jobs\David_Lee_Tasks\Auto_Track_generation_and_upload\utils.py", line 193, in delete_downloaded_files
+    os.remove(abs_file_path)
+PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\user\\Desktop\\Upwork Jobs\\David_Lee_Tasks\\Auto_Track_generation_and_upload\\downloaded_files\\Broken Pieces.mp3'

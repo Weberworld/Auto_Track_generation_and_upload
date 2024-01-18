@@ -65,7 +65,7 @@ class SunoAI:
 
     @handle_exception(retry=True)
     def get_generated_tracks_selection(self, no_of_tracks) -> list:
-        self.driver.sleep(3)
+        self.driver.sleep(5)
         select_btns = wait_for_elements_presence(self.driver,
                                                  "button.chakra-button.chakra-menu__menu-button.css-o244em")[
                       -no_of_tracks::]
@@ -83,10 +83,13 @@ class SunoAI:
             self.driver.sleep(2)
 
             loading = True
-            while loading:
+            # Wait until two minutes if track cannot be downloaded
+            max_wait_limit_in_secs = 0
+            while loading and max_wait_limit_in_secs < 120:
                 if self.driver.execute_script(
                         "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
                     self.driver.sleep(1)
+                    max_wait_limit_in_secs += 1
                 else:
                     loading = False
             download_btn = wait_for_elements_to_be_clickable(self.driver,
@@ -136,12 +139,11 @@ class SunoAI:
             print(prompt["prompt"])
             self.create_song(prompt['prompt'])
 
-            # Download the generated tracks
-            generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)
-
             index = 0
-            for track_sel_btn in generated_tracks_sel_btn:
-                self.download_track(track_sel_btn)
+            for i in range(2):
+                generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)[i]
+                self.download_track(generated_tracks_sel_btn)
+
                 # Scrap the tracks title and tag list
                 scraped_details = self.scrap_details()
                 # Get the img download link
@@ -153,7 +155,7 @@ class SunoAI:
                     if each['title'] in track_title:
                         # Add extra text to the duplicated track title
                         new_track_title = (track_title + " 2nd version")
-                        rename_downloaded_audio_file(track_title, new_track_title)
+                        rename_downloaded_audio_file(track_title, (new_track_title + ".mp3"))
                         track_title = new_track_title
 
                 # Download the track image

@@ -7,6 +7,7 @@ from utils import parse_prompts, get_available_platform_accounts_v2, delete_down
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from sunodownloads.sono_ai_spider import run_suno_bot
 
+print("started")
 sched = BlockingScheduler()
 
 

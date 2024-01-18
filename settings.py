@@ -1,5 +1,5 @@
 class Settings:
-    HEADLESS = True
+    HEADLESS = False
 
     TIMEOUT: int = 30
 
