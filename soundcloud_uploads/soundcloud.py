@@ -97,7 +97,8 @@ class SoundCloud:
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
 
         print("Uploading tracks ...")
-
+        self.driver.sleep(5)
+        print(self.driver.current_url)
         # Accept cookies
         print("Accepted cookies")
         wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
