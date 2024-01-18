@@ -6,6 +6,7 @@ import random
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_uploaded_files
@@ -18,7 +19,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=23, minute=55)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=35)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -59,7 +60,7 @@ def automation_process():
             suno_acct = all_suno_accounts[int(current_suno_act_index)]
             suno_download_result = []
             try:
-                run_suno_bot(suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
+                run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
             finally:
                 pass
 
@@ -125,7 +126,7 @@ def automation_process():
                     soundcloud_results = []
                     try:
                         run_soundcloud_bot(
-                            soundcloud_link, running_soundcloud_acct[0],
+                            Settings.DRIVER, soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
                         )
                     except Exception:
@@ -136,6 +137,13 @@ def automation_process():
                         # Store the soundcloud result on the redis server
                         for result in soundcloud_results:
                             r.lpush("soundcloud_results", json.dumps(result))
+
+                    from seleniumbase import Driver
+                    Settings.DRIVER.quit()
+                    Settings.DRIVER = Driver(
+                        uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+                        no_sandbox=True, incognito=True, user_data_dir=None
+                    )
 
                     # Set the next soundcloud account index to run
                     current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
@@ -149,6 +157,7 @@ def automation_process():
             current_suno_act_index = int(r.get("next_suno_acct_index"))
             r.set("next_suno_acct_index", (current_suno_act_index + 1))
 
+        Settings.DRIVER.quit()
         # Send the report of the whole activities to the set telegram user
         try:
             no_of_downloaded_tracks = int(r.get("no_of_downloaded_tracks"))

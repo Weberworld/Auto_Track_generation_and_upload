@@ -6,15 +6,15 @@ from helpers import wait_for_elements_presence, handle_exception, wait_for_eleme
 
 
 class SunoAI:
-    def __init__(self):
+    def __init__(self, driver):
         """
         # :param driver: Seleniumbase driver object
         """
-        # self.driver = driver
-        self.driver = Driver(
-            uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-            no_sandbox=True, incognito=True, user_data_dir=None
-        )
+        self.driver = driver
+        # self.driver = Driver(
+        #     uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+        #     no_sandbox=True, incognito=True, user_data_dir=None
+        # )
         self.driver.set_window_size(1920, 1080)
 
     # Login into suno
@@ -178,9 +178,10 @@ class SunoAI:
                 store_into.append(track_details)
                 self.driver.sleep(2)
             self.driver.sleep(5)
+            break
 
 
-def run_suno_bot(username, password, prompt, store):
+def run_suno_bot(driver, username, password, prompt, store):
     """
     Runs the Suno Ai bot
     :param username: Microsoft username
@@ -189,13 +190,13 @@ def run_suno_bot(username, password, prompt, store):
     :param store: List to store all downloaded tracks info
     """
     try:
-        suno_bot = SunoAI()
+        suno_bot = SunoAI(driver)
         suno_bot.sign_in(username, password)
         suno_bot.run(username, prompt, store)
         if Settings.USE_LOG_OUT:
             suno_bot.sign_out()
             suno_bot.driver.delete_all_cookies()
-            suno_bot.driver.quit()
+            # suno_bot.driver.quit()
         else:
             suno_bot.driver.quit()
     except Exception as e:
