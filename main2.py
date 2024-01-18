@@ -4,6 +4,7 @@ import time
 import redis
 import random
 
+from seleniumbase import Driver
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from settings import Settings
@@ -19,7 +20,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=20)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=38)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -61,6 +62,16 @@ def automation_process():
             suno_download_result = []
             try:
                 run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
+            except Exception:
+                Settings.DRIVER = Driver(
+                        uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+                        no_sandbox=True, incognito=True, user_data_dir=None
+                    )
+                try:
+                    run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
+
+                except Exception:
+                    pass
             finally:
                 pass
 
@@ -138,7 +149,6 @@ def automation_process():
                         for result in soundcloud_results:
                             r.lpush("soundcloud_results", json.dumps(result))
 
-                    from seleniumbase import Driver
                     Settings.DRIVER.quit()
                     Settings.DRIVER = Driver(
                         uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,

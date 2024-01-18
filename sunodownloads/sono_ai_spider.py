@@ -189,20 +189,15 @@ def run_suno_bot(driver, username, password, prompt, store):
     :param prompt: List of prompts to use to create tracks on Suno AI
     :param store: List to store all downloaded tracks info
     """
-    try:
-        try:
-            suno_bot = SunoAI(driver)
-        except Exception:
-            suno_bot = SunoAI(driver)
-        suno_bot.sign_in(username, password)
-        suno_bot.run(username, prompt, store)
-        if Settings.USE_LOG_OUT:
-            suno_bot.sign_out()
-            suno_bot.driver.delete_all_cookies()
-            # suno_bot.driver.quit()
-        else:
-            suno_bot.driver.quit()
-    except Exception as e:
-        print("Got exception from suno")
-        print(e)
-        pass
+
+    suno_bot = SunoAI(driver)
+
+    suno_bot.sign_in(username, password)
+    suno_bot.run(username, prompt, store)
+    if Settings.USE_LOG_OUT:
+        suno_bot.sign_out()
+        suno_bot.driver.delete_all_cookies()
+        # suno_bot.driver.quit()
+    else:
+        suno_bot.driver.quit()
+

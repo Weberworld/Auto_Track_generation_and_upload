@@ -100,18 +100,23 @@ class SoundCloud:
         self.driver.sleep(5)
         print(self.driver.current_url)
         # Accept cookies
+
+        wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
         print("Accepted cookies")
-        wait_for_elements_presence(self.driver, "#onetrust-accept-btn-handler")[0].click()
+
         self.driver.sleep(5)
         try:
 
             wait_for_elements_presence(self.driver, ".loginButton")[0].click()
             print("Clicked on sign in button")
         except TimeoutException:
+            print("No sign in button was found")
             pass
 
         # Select the choose file to upload btn
+        print("Getting audios")
         selected_audios = get_all_downloaded_audios()
+        print("Audios gotten")
 
         # Click on not to create playlist
         print("Do not create playlist")
