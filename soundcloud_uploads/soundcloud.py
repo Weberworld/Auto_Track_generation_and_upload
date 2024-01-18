@@ -100,9 +100,12 @@ class SoundCloud:
         self.driver.sleep(5)
         print(self.driver.current_url)
         # Accept cookies
-
-        wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
-        print("Accepted cookies")
+        try:
+            wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
+            print("Accepted cookies")
+        except TimeoutException:
+            print("Cannot find cookies")
+            pass
 
         self.driver.sleep(5)
         try:
