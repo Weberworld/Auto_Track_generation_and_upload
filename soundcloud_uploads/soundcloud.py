@@ -103,7 +103,7 @@ class SoundCloud:
         try:
             wait_for_elements_to_be_clickable(self.driver, "#onetrust-accept-btn-handler")[0].click()
             print("Accepted cookies")
-        except TimeoutException:
+        except (TimeoutException, IndexError):
             print("Cannot find cookies")
             pass
 
@@ -112,7 +112,7 @@ class SoundCloud:
 
             wait_for_elements_presence(self.driver, ".loginButton")[0].click()
             print("Clicked on sign in button")
-        except TimeoutException:
+        except (TimeoutException, IndexError):
             print("No sign in button was found")
             pass
 
