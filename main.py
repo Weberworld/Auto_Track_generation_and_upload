@@ -1,8 +1,14 @@
+"""
+This is to be run only on local testing
+"""
+
+
 import os
 import time
 from threading import Thread
 from settings import Settings
 from apscheduler.schedulers.blocking import BlockingScheduler
+from helpers import create_driver
 from utils import parse_prompts, get_available_platform_accounts_v2, delete_downloaded_files, send_daily_statistics
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from sunodownloads.sono_ai_spider import run_suno_bot
@@ -10,8 +16,7 @@ from sunodownloads.sono_ai_spider import run_suno_bot
 print("started")
 sched = BlockingScheduler()
 
-
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
+# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=11, minute=53)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
@@ -31,11 +36,14 @@ def automation_process():
         #   Run 5 suno bot concurrently
         all_suno_threads = []
         for account in all_suno_accounts[suno_start_index:suno_end_index]:
+            break
             username = account[0]
             password = account[1]
+
+            driver = create_driver()
             suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
                                  target=run_suno_bot,
-                                 args=(Settings.DRIVER, username, password, all_daily_prompts,
+                                 args=(driver, username, password, all_daily_prompts,
                                        all_downloaded_audios_info))
             suno_thread.start()
             print(suno_thread.name + " started")
@@ -56,14 +64,19 @@ def automation_process():
                 # Create a SoundCloud bot instance
                 username = account[0]
                 password = account[1]
+
+                driver = create_driver()
+                all_downloaded_audios_info = [{"title": "Future Unknown", "img_path": os.path.join(os.getcwd(), "downloaded_files/images/Future Unknown.png"), "genre": "House", "tag_list": ["hello", "world"]}]
+
                 soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
-                                           args=(Settings.DRIVER, os.getenv("SOUNDCLOUD_LINK"), username, password,
+                                           args=(driver, os.getenv("SOUNDCLOUD_LINK"), username, password,
                                                  all_downloaded_audios_info, result_from_soundcloud)
                                            )
                 soundcloud_thread.start()
                 print(soundcloud_thread.name + " started")
                 all_soundcloud_threads.append(soundcloud_thread)
-                time.sleep(5)
+                time.sleep(2)
+
 
             # Wait for all suno thread to finish
             for soundcloud_thread in all_soundcloud_threads:
@@ -74,7 +87,7 @@ def automation_process():
             soundcloud_start_index = soundcloud_end_index
             soundcloud_end_index += Settings.CONCURRENT_PROCESS
 
-        delete_downloaded_files()
+        # delete_downloaded_files()
 
         if suno_end_index >= len(all_suno_accounts):
             break
@@ -89,4 +102,9 @@ def automation_process():
     print("done")
 
 
+# sched.start()
+automation_process()
+
+
 sched.start()
+

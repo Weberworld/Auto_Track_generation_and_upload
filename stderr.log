@@ -1,0 +1,168 @@
+2024-01-19 13:16:17,073  --  INFO -- 'NoneType' object is not subscriptable
+2024-01-19 13:16:17,073  --  WARNING -- Retrying function download_track
+2024-01-19 13:16:23,110  --  INFO -- 'NoneType' object is not subscriptable
+2024-01-19 13:16:23,110  --  WARNING -- Retrying function download_track
+2024-01-19 23:38:32,571  --  INFO -- Message: element click intercepted: Element <input type="checkbox" id="" name="as_playlist" class="sc-checkbox-input sc-visuallyhidden " checked="checked"> is not clickable at point (532, 448). Other element would receive the click: <div class="sc-checkbox-check"></div>
+  (Session info: chrome=120.0.6099.225)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6CEDD2142+3514994]
+	(No symbol) [0x00007FF6CE9F0CE2]
+	(No symbol) [0x00007FF6CE8976AA]
+	(No symbol) [0x00007FF6CE8E88F3]
+	(No symbol) [0x00007FF6CE8E68ED]
+	(No symbol) [0x00007FF6CE8E40EC]
+	(No symbol) [0x00007FF6CE8E2EA5]
+	(No symbol) [0x00007FF6CE8D6A0F]
+	(No symbol) [0x00007FF6CE905FEA]
+	(No symbol) [0x00007FF6CE8D63B6]
+	(No symbol) [0x00007FF6CE906490]
+	(No symbol) [0x00007FF6CE9228F6]
+	(No symbol) [0x00007FF6CE905D93]
+	(No symbol) [0x00007FF6CE8D4BDC]
+	(No symbol) [0x00007FF6CE8D5C64]
+	GetHandleVerifier [0x00007FF6CEDFE16B+3695259]
+	GetHandleVerifier [0x00007FF6CEE56737+4057191]
+	GetHandleVerifier [0x00007FF6CEE4E4E3+4023827]
+	GetHandleVerifier [0x00007FF6CEB204F9+689705]
+	(No symbol) [0x00007FF6CE9FC048]
+	(No symbol) [0x00007FF6CE9F8044]
+	(No symbol) [0x00007FF6CE9F81C9]
+	(No symbol) [0x00007FF6CE9E88C4]
+	BaseThreadInitThunk [0x00007FF8ED9B7344+20]
+	RtlUserThreadStart [0x00007FF8EF7426B1+33]
+
+2024-01-19 23:38:32,575  --  WARNING -- Retrying function upload_tracks
+2024-01-19 23:45:40,043  --  INFO -- Message: element click intercepted: Element <input type="checkbox" id="" name="as_playlist" class="sc-checkbox-input sc-visuallyhidden " checked="checked"> is not clickable at point (532, 448). Other element would receive the click: <div class="sc-checkbox-check"></div>
+  (Session info: chrome=120.0.6099.225)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6CEDD2142+3514994]
+	(No symbol) [0x00007FF6CE9F0CE2]
+	(No symbol) [0x00007FF6CE8976AA]
+	(No symbol) [0x00007FF6CE8E88F3]
+	(No symbol) [0x00007FF6CE8E68ED]
+	(No symbol) [0x00007FF6CE8E40EC]
+	(No symbol) [0x00007FF6CE8E2EA5]
+	(No symbol) [0x00007FF6CE8D6A0F]
+	(No symbol) [0x00007FF6CE905FEA]
+	(No symbol) [0x00007FF6CE8D63B6]
+	(No symbol) [0x00007FF6CE906490]
+	(No symbol) [0x00007FF6CE9228F6]
+	(No symbol) [0x00007FF6CE905D93]
+	(No symbol) [0x00007FF6CE8D4BDC]
+	(No symbol) [0x00007FF6CE8D5C64]
+	GetHandleVerifier [0x00007FF6CEDFE16B+3695259]
+	GetHandleVerifier [0x00007FF6CEE56737+4057191]
+	GetHandleVerifier [0x00007FF6CEE4E4E3+4023827]
+	GetHandleVerifier [0x00007FF6CEB204F9+689705]
+	(No symbol) [0x00007FF6CE9FC048]
+	(No symbol) [0x00007FF6CE9F8044]
+	(No symbol) [0x00007FF6CE9F81C9]
+	(No symbol) [0x00007FF6CE9E88C4]
+	BaseThreadInitThunk [0x00007FF8ED9B7344+20]
+	RtlUserThreadStart [0x00007FF8EF7426B1+33]
+
+2024-01-19 23:45:40,044  --  WARNING -- Retrying function upload_tracks
+2024-01-19 23:47:55,485  --  INFO -- Message: element click intercepted: Element <input type="checkbox" id="" name="as_playlist" class="sc-checkbox-input sc-visuallyhidden " checked="checked"> is not clickable at point (532, 448). Other element would receive the click: <div class="sc-checkbox-check"></div>
+  (Session info: chrome=120.0.6099.225)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6CEDD2142+3514994]
+	(No symbol) [0x00007FF6CE9F0CE2]
+	(No symbol) [0x00007FF6CE8976AA]
+	(No symbol) [0x00007FF6CE8E88F3]
+	(No symbol) [0x00007FF6CE8E68ED]
+	(No symbol) [0x00007FF6CE8E40EC]
+	(No symbol) [0x00007FF6CE8E2EA5]
+	(No symbol) [0x00007FF6CE8D6A0F]
+	(No symbol) [0x00007FF6CE905FEA]
+	(No symbol) [0x00007FF6CE8D63B6]
+	(No symbol) [0x00007FF6CE906490]
+	(No symbol) [0x00007FF6CE9228F6]
+	(No symbol) [0x00007FF6CE905D93]
+	(No symbol) [0x00007FF6CE8D4BDC]
+	(No symbol) [0x00007FF6CE8D5C64]
+	GetHandleVerifier [0x00007FF6CEDFE16B+3695259]
+	GetHandleVerifier [0x00007FF6CEE56737+4057191]
+	GetHandleVerifier [0x00007FF6CEE4E4E3+4023827]
+	GetHandleVerifier [0x00007FF6CEB204F9+689705]
+	(No symbol) [0x00007FF6CE9FC048]
+	(No symbol) [0x00007FF6CE9F8044]
+	(No symbol) [0x00007FF6CE9F81C9]
+	(No symbol) [0x00007FF6CE9E88C4]
+	BaseThreadInitThunk [0x00007FF8ED9B7344+20]
+	RtlUserThreadStart [0x00007FF8EF7426B1+33]
+
+2024-01-19 23:47:55,486  --  WARNING -- Retrying function upload_tracks
+2024-01-19 23:48:32,764  --  ERROR -- Error terminating service process.
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\selenium\webdriver\common\service.py", line 170, in _terminate_process
+    self.process.terminate()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1671, in terminate
+    _winapi.TerminateProcess(self._handle, 1)
+OSError: [WinError 6] The handle is invalid
+2024-01-19 23:56:03,062  --  INFO -- Message: element click intercepted: Element <input type="checkbox" id="" name="as_playlist" class="sc-checkbox-input sc-visuallyhidden " checked="checked"> is not clickable at point (532, 448). Other element would receive the click: <div class="sc-checkbox-check"></div>
+  (Session info: chrome=120.0.6099.225)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6CEDD2142+3514994]
+	(No symbol) [0x00007FF6CE9F0CE2]
+	(No symbol) [0x00007FF6CE8976AA]
+	(No symbol) [0x00007FF6CE8E88F3]
+	(No symbol) [0x00007FF6CE8E68ED]
+	(No symbol) [0x00007FF6CE8E40EC]
+	(No symbol) [0x00007FF6CE8E2EA5]
+	(No symbol) [0x00007FF6CE8D6A0F]
+	(No symbol) [0x00007FF6CE905FEA]
+	(No symbol) [0x00007FF6CE8D63B6]
+	(No symbol) [0x00007FF6CE906490]
+	(No symbol) [0x00007FF6CE9228F6]
+	(No symbol) [0x00007FF6CE905D93]
+	(No symbol) [0x00007FF6CE8D4BDC]
+	(No symbol) [0x00007FF6CE8D5C64]
+	GetHandleVerifier [0x00007FF6CEDFE16B+3695259]
+	GetHandleVerifier [0x00007FF6CEE56737+4057191]
+	GetHandleVerifier [0x00007FF6CEE4E4E3+4023827]
+	GetHandleVerifier [0x00007FF6CEB204F9+689705]
+	(No symbol) [0x00007FF6CE9FC048]
+	(No symbol) [0x00007FF6CE9F8044]
+	(No symbol) [0x00007FF6CE9F81C9]
+	(No symbol) [0x00007FF6CE9E88C4]
+	BaseThreadInitThunk [0x00007FF8ED9B7344+20]
+	RtlUserThreadStart [0x00007FF8EF7426B1+33]
+
+2024-01-19 23:56:03,062  --  WARNING -- Retrying function upload_tracks
+2024-01-19 23:58:37,011  --  INFO -- Message: element click intercepted: Element <input type="checkbox" id="" name="as_playlist" class="sc-checkbox-input sc-visuallyhidden " checked="checked"> is not clickable at point (532, 448). Other element would receive the click: <div class="sc-checkbox-check"></div>
+  (Session info: chrome=120.0.6099.225)
+Stacktrace:
+	GetHandleVerifier [0x00007FF6CEDD2142+3514994]
+	(No symbol) [0x00007FF6CE9F0CE2]
+	(No symbol) [0x00007FF6CE8976AA]
+	(No symbol) [0x00007FF6CE8E88F3]
+	(No symbol) [0x00007FF6CE8E68ED]
+	(No symbol) [0x00007FF6CE8E40EC]
+	(No symbol) [0x00007FF6CE8E2EA5]
+	(No symbol) [0x00007FF6CE8D6A0F]
+	(No symbol) [0x00007FF6CE905FEA]
+	(No symbol) [0x00007FF6CE8D63B6]
+	(No symbol) [0x00007FF6CE906490]
+	(No symbol) [0x00007FF6CE9228F6]
+	(No symbol) [0x00007FF6CE905D93]
+	(No symbol) [0x00007FF6CE8D4BDC]
+	(No symbol) [0x00007FF6CE8D5C64]
+	GetHandleVerifier [0x00007FF6CEDFE16B+3695259]
+	GetHandleVerifier [0x00007FF6CEE56737+4057191]
+	GetHandleVerifier [0x00007FF6CEE4E4E3+4023827]
+	GetHandleVerifier [0x00007FF6CEB204F9+689705]
+	(No symbol) [0x00007FF6CE9FC048]
+	(No symbol) [0x00007FF6CE9F8044]
+	(No symbol) [0x00007FF6CE9F81C9]
+	(No symbol) [0x00007FF6CE9E88C4]
+	BaseThreadInitThunk [0x00007FF8ED9B7344+20]
+	RtlUserThreadStart [0x00007FF8EF7426B1+33]
+
+2024-01-19 23:58:37,011  --  WARNING -- Retrying function upload_tracks
+2024-01-19 23:58:57,004  --  ERROR -- Error terminating service process.
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\selenium\webdriver\common\service.py", line 170, in _terminate_process
+    self.process.terminate()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1671, in terminate
+    _winapi.TerminateProcess(self._handle, 1)
+OSError: [WinError 6] The handle is invalid

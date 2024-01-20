@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from datetime import datetime
 import requests
 from settings import Settings
@@ -267,3 +268,18 @@ def rename_downloaded_audio_file(filename, new_filename):
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
         pass
+
+
+def scroll_down(driver):
+    # Get scroll height.
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        # Scroll down to the bottom.
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # Wait to load the page.
+        time.sleep(2)
+        # Calculate new scroll height and compare with last scroll height.
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height

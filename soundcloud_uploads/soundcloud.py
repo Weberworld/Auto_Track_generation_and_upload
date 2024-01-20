@@ -3,7 +3,7 @@ import time
 import pyperclip
 
 from selenium.webdriver import Keys
-from seleniumbase.common.exceptions import TimeoutException
+from seleniumbase.common.exceptions import TimeoutException, NoSuchWindowException
 
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
@@ -47,6 +47,7 @@ class SoundCloud:
         google_sign_option.click()
         while re.search(f"^{SOUND_CLOUD_BASE_URL}", self.driver.current_url):
             time.sleep(1)
+
         # Proceed to sign in with Google
         try:
             print(self.driver.current_url)
@@ -71,6 +72,14 @@ class SoundCloud:
         self.driver.sleep(2)
         print("Login success")
 
+        # Accept cookies
+        try:
+            self.driver.click_if_visible("#onetrust-accept-btn-handler", timeout=Settings.TIMEOUT)
+            print("Accepted cookies")
+        except TimeoutException:
+            print("Cannot find cookies")
+            pass
+
     def log_out(self):
         """
         Logs out from a logged in soundcloud account
@@ -93,32 +102,20 @@ class SoundCloud:
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
 
         print("Uploading tracks ...")
-        self.driver.sleep(5)
-        print(self.driver.current_url)
-        # Accept cookies
-        try:
-            self.driver.click_if_visible("#onetrust-accept-btn-handler", timeout=10)
-            print("Accepted cookies")
-        except (TimeoutException, IndexError):
-            print("Cannot find cookies")
-            pass
 
-        self.driver.sleep(5)
-        try:
-            self.driver.click_if_visible(".loginButton", timeout=10)
-            print("Clicked on sign in button")
-        except (TimeoutException, IndexError):
-            print("No sign in button was found")
-            pass
+        # try:
+        #     self.driver.click_if_visible(".loginButton", timeout=10)
+        #     print("Clicked on sign in button")
+        # except (TimeoutException, IndexError):
+        #     print("No sign-in button was found")
+        #     pass
 
         # Select the choose file to upload btn
-        print("Getting audios")
         selected_audios = get_all_downloaded_audios()
-        print("Audios gotten")
 
         # Click on not to create playlist
         print("Do not create playlist")
-        self.driver.click_if_visible("input.sc-checkbox-input.sc-visuallyhidden", timeout=Settings.TIMEOUT)
+        self.driver.execute_script('document.querySelector("input.sc-checkbox-input.sc-visuallyhidden").click()')
         self.driver.sleep(2)
 
         # Upload the audio files
@@ -129,12 +126,14 @@ class SoundCloud:
         genre_name = downloaded_audios_info[0]['genre']
         print(f"Genre name is: {genre_name}")
         self.driver.sleep(1)
+
         # Wait for all audio to upload
-        upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
         print("Processing Uploads ... ")
+        upload_status = self.driver.get_text("span.uploadButton__title", timeout=Settings.TIMEOUT)
         while "processing" in upload_status.lower() or "uploading" in upload_status.lower():
             self.driver.sleep(1)
             upload_status = self.driver.get_text("span.uploadButton__title")
+        print("Upload processing done")
 
         all_uploads_titles = wait_for_elements_presence(self.driver,
                                                         'div.baseFields__data > div.baseFields__title > div.textfield > div.textfield__inputWrapper > input')
@@ -143,10 +142,10 @@ class SoundCloud:
         all_uploaded_song_save_btn_ele = wait_for_elements_to_be_clickable(self.driver,
                                                                            "div.activeUpload__formButtons.sc-button-toolbar > button.sc-button-cta.sc-button")
         print(f"Got {len(all_uploaded_song_save_btn_ele)} save btns")
+        print("Filling Tracks upload form ...")
         for each in all_uploads_titles:
             for audio_info in downloaded_audios_info:
                 if each.get_attribute("value").lower() == audio_info["title"].lower():
-                    print("Seen an upload")
                     track_index = all_uploads_titles.index(each)
                     # Upload the track image
                     all_uploads_img[track_index].send_keys(audio_info["img_path"])
@@ -160,6 +159,8 @@ class SoundCloud:
                     self.driver.sleep(2)
                     break
         self.driver.execute_script(open("soundcloud_uploads/upload.js").read(), genre_name)
+        print(f"{len(all_uploads_titles)} tracks has been uploaded")
+        print("Upload successful")
         self.result['upload_count'] = len(all_uploads_img)
         self.driver.sleep(2)
 
@@ -174,8 +175,8 @@ class SoundCloud:
             return False
 
         self.driver.sleep(2)
-        all_monetize_track_btns = wait_for_elements_to_be_clickable(self.driver,
-                                                                    "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
+        all_monetize_track_btns = wait_for_elements_presence(self.driver,
+                                                             "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
                 btn_ele.click()
@@ -214,8 +215,8 @@ class SoundCloud:
                 self.driver.sleep(3)
         #  Adds the no of tracks monetized from a page to the result attribute
         self.result["monetization_count"] += len(all_monetize_track_btns)
-        pagination_btn = wait_for_elements_to_be_clickable(self.driver,
-                                                           "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
+        pagination_btn = self.driver.find_elements(
+            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
         for each in pagination_btn:
             if each.text == "Next":
                 print("Navigating to monetization next page")
@@ -255,7 +256,7 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
     try:
 
         soundcloud_bot = SoundCloud(driver)
-    except Exception:
+    except NoSuchWindowException:
         soundcloud_bot = SoundCloud(driver)
     soundcloud_bot.login(link, username, password)
     soundcloud_bot.upload_tracks(store)
@@ -263,4 +264,5 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
         soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         soundcloud_bot.monetize_track()
     soundcloud_result.append(soundcloud_bot.result)
-    # soundcloud_bot.driver.quit()
+    if Settings.LOCAL_TESTING:
+        driver.quit()

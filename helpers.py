@@ -55,14 +55,14 @@ def wait_for_elements_presence(driver, selector: str) -> list:
     :return: The list of elements it waited for, if the function did not enter timeout
     """
     try:
-        WebDriverWait(driver, Settings.TIMEOUT).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
+        WebDriverWait(driver, Settings.TIMEOUT).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, selector)))
         return driver.find_elements(By.CSS_SELECTOR, selector)
     except TimeoutException:
         try:
             WebDriverWait(driver, Settings.TIMEOUT).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
             return driver.find_elements(By.CSS_SELECTOR, selector)
         except TimeoutException:
-            raise TimeoutException
+            return []
 
 
 def wait_for_elements_to_be_clickable(driver, selector: str) -> list:
@@ -85,3 +85,18 @@ def wait_for_elements_to_be_clickable(driver, selector: str) -> list:
             return driver.find_elements(By.CSS_SELECTOR, selector)
         except TimeoutException:
             return []
+
+
+
+def create_driver():
+    """
+    Creates a webdriver
+    @return: Wedriver object
+    """
+    from seleniumbase import Driver as webDriver
+
+    driver = webDriver(
+        uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
+        no_sandbox=True, incognito=True, user_data_dir=None
+    )
+    return driver

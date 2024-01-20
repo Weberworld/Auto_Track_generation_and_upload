@@ -4,12 +4,15 @@ import time
 import redis
 import random
 
+from selenium.common import InvalidSessionIdException
 from seleniumbase import Driver
 from apscheduler.schedulers.blocking import BlockingScheduler
+from seleniumbase.common.exceptions import NoSuchWindowException
 
 from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
+from helpers import create_driver
 from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_uploaded_files
 
 sched = BlockingScheduler()
@@ -40,6 +43,9 @@ def automation_process():
 
         wait_randomly()
 
+        # Creates the webdriver
+        webdriver = create_driver()
+
         # Get or set the prompt to use
         all_prompt_info = [json.loads(item) for item in r.lrange("daily_prompts", 0, -1)]
         if not all_prompt_info:
@@ -62,16 +68,17 @@ def automation_process():
         while int(current_suno_act_index) < len(all_suno_accounts):
             suno_acct = all_suno_accounts[int(current_suno_act_index)]
             suno_download_result = []
+
+
+
             try:
-                run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
-            except Exception:
-                Settings.DRIVER = Driver(
-                        uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-                        no_sandbox=True, incognito=True, user_data_dir=None
-                    )
+                run_suno_bot(webdriver, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
+            except (NoSuchWindowException, InvalidSessionIdException):
+                # Recreate the webdriver if an error was raised
+                webdriver = create_driver()
                 # Retry the bot if it fails
                 try:
-                    run_suno_bot(Settings.DRIVER, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
+                    run_suno_bot(webdriver, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
                 except Exception:
                     print("Exception from suno")
                     pass
@@ -144,7 +151,7 @@ def automation_process():
                     soundcloud_results = []
                     try:
                         run_soundcloud_bot(
-                            Settings.DRIVER, soundcloud_link, running_soundcloud_acct[0],
+                            webdriver, soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
                         )
                     except Exception:
@@ -162,11 +169,9 @@ def automation_process():
                                     result["monetization_count"] += each["monetization_count"]
                                     r.lpush("soundcloud_results", json.dumps(result))
 
-                    Settings.DRIVER.quit()
-                    Settings.DRIVER = Driver(
-                        uc=True, undetectable=True, headless2=Settings.HEADLESS, guest_mode=True, disable_gpu=True,
-                        no_sandbox=True, incognito=True, user_data_dir=None
-                    )
+                    # Close and re-open a driver after each soundcloud operation is completed
+                    webdriver.quit()
+                    webdriver = create_driver()
 
                     # Set the next soundcloud account index to run
                     current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
@@ -180,7 +185,7 @@ def automation_process():
             current_suno_act_index = int(r.get("next_suno_acct_index"))
             r.set("next_suno_acct_index", (current_suno_act_index + 1))
 
-        Settings.DRIVER.quit()
+        webdriver.quit()
         # Send the report of the whole activities to the set telegram user
 
         soundcloud_results = [json.loads(result) for result in r.lrange("soundcloud_results", 0, -1)]
@@ -198,4 +203,5 @@ def automation_process():
         print("No Soundcloud account or Suno account found !!")
 
 
-sched.start()
+# sched.start()
+

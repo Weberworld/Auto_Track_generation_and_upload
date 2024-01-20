@@ -1,5 +1,10 @@
 import re
-from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file
+
+from seleniumbase.common.exceptions import TimeoutException
+
+# from seleniumbase import Driver
+
+from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down
 from settings import Settings
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
 
@@ -60,7 +65,8 @@ class SunoAI:
         print("Creating tracks ....")
         self.driver.get(Settings.SUNO_BASE_URL + "create")
         prompt_input_ele = "div.chakra-stack.css-131jemj > div.chakra-stack.css-10k728o > textarea"
-        wait_for_elements_presence(self.driver, prompt_input_ele)[0].send_keys(prompt)
+        self.driver.type(prompt_input_ele, prompt, timeout=Settings.TIMEOUT)
+        return
         self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
 
     @handle_exception(retry=True)
@@ -82,28 +88,25 @@ class SunoAI:
             option_sel_btn_ele.click()
             self.driver.sleep(2)
 
+            scroll_down(self.driver)
+
             loading = True
             # Wait until two minutes if track cannot be downloaded
             max_wait_limit_in_secs = 0
-            while loading and max_wait_limit_in_secs < 120:
+            while loading and max_wait_limit_in_secs < Settings.TIMEOUT:
                 if self.driver.execute_script(
                         "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
                     self.driver.sleep(1)
                     max_wait_limit_in_secs += 1
                 else:
                     loading = False
-            download_btn = wait_for_elements_to_be_clickable(self.driver,
-                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
-                option]
-            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            wait_for_elements_to_be_clickable(self.driver, "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[option].click()
+
             self.driver.sleep(2)
-            download_btn.click()
+            # download_btn.click()
         except Exception:
-            download_btn = wait_for_elements_to_be_clickable(self.driver,
-                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
-                option]
-            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
-            download_btn.click()
+            scroll_down(self.driver)
+            wait_for_elements_to_be_clickable(self.driver, "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[option].click()
 
     @handle_exception(retry=True)
     def download_track(self, track_opt_btn_ele):
@@ -137,13 +140,15 @@ class SunoAI:
         for prompt in all_prompt_info:
             # Create tracks with a given prompt
             print(prompt["prompt"])
-            self.create_song(prompt['prompt'])
-
+            try:
+                self.create_song(prompt['prompt'])
+            except (TimeoutException, IndexError, Exception):
+                return
+            generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)
             index = 0
-            for i in range(2):
-                generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)[i]
-                self.download_track(generated_tracks_sel_btn)
+            for btn_ele in generated_tracks_sel_btn:
 
+                self.download_track(btn_ele)
                 # Scrap the tracks title and tag list
                 scraped_details = self.scrap_details()
                 # Get the img download link
@@ -170,6 +175,7 @@ class SunoAI:
                     "tag_list": tag_str,
                     "img_path": img_path
                 }
+                print("Track downloaded")
                 print(track_details)
                 index += 1
                 store_into.append(track_details)
@@ -180,7 +186,7 @@ class SunoAI:
 def run_suno_bot(driver, username, password, prompt, store):
     """
     Runs the Suno Ai bot
-    :@param driver: Seleniumbase webdriver
+    :param driver: Seleniumbase webdriver
     :param username: Microsoft username
     :param password: Microsoft password
     :param prompt: List of prompts to use to create tracks on Suno AI
@@ -191,9 +197,8 @@ def run_suno_bot(driver, username, password, prompt, store):
 
     suno_bot.sign_in(username, password)
     suno_bot.run(username, prompt, store)
-    if Settings.USE_LOG_OUT:
+    if Settings.LOCAL_TESTING:
+        suno_bot.driver.quit()
+    else:
         suno_bot.sign_out()
         suno_bot.driver.delete_all_cookies()
-        # suno_bot.driver.quit()
-    else:
-        suno_bot.driver.quit()
