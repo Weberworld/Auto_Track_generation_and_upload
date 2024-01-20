@@ -35,12 +35,12 @@ class SoundCloud:
         print(f"Logging in to Soundcloud with: {username}")
         if retry == 0:
             print(f"Retrying countdown {retry}")
-            self.driver.close()
+            self.driver.quit()
             return
 
         self.driver.uc_open(link)
-        print("Logging in with google")
         self.result['account'] = username
+
         google_sign_option = wait_for_elements_presence(self.driver,
                                                         "div.provider-buttons > div > button.google-plus-signin.sc-button-google")[
             0]
@@ -50,8 +50,6 @@ class SoundCloud:
 
         # Proceed to sign in with Google
         try:
-            print(self.driver.current_url)
-
             sign_in_with_google(self.driver, username, password)
         except Exception as e:
             print(e)
@@ -94,27 +92,20 @@ class SoundCloud:
             time.sleep(1)
 
     @handle_exception(retry=True)
-    def upload_tracks(self, downloaded_audios_info):
+    def upload_tracks(self, downloaded_audios_info: list):
         """
         Upload downloaded tracks from suno_ai_spider run to the given to the artist profile
         """
+        if len(downloaded_audios_info) == 0 or downloaded_audios_info is None:
+            print("No tracks to upload.")
+            return
 
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
-
-        print("Uploading tracks ...")
-
-        # try:
-        #     self.driver.click_if_visible(".loginButton", timeout=10)
-        #     print("Clicked on sign in button")
-        # except (TimeoutException, IndexError):
-        #     print("No sign-in button was found")
-        #     pass
 
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
 
         # Click on not to create playlist
-        print("Do not create playlist")
         self.driver.execute_script('document.querySelector("input.sc-checkbox-input.sc-visuallyhidden").click()')
         self.driver.sleep(2)
 
@@ -141,7 +132,6 @@ class SoundCloud:
         all_uploads_tags = wait_for_elements_presence(self.driver, 'input.tagInput__input.tokenInput__input')
         all_uploaded_song_save_btn_ele = wait_for_elements_to_be_clickable(self.driver,
                                                                            "div.activeUpload__formButtons.sc-button-toolbar > button.sc-button-cta.sc-button")
-        print(f"Got {len(all_uploaded_song_save_btn_ele)} save btns")
         print("Filling Tracks upload form ...")
         for each in all_uploads_titles:
             for audio_info in downloaded_audios_info:
@@ -160,7 +150,6 @@ class SoundCloud:
                     break
         self.driver.execute_script(open("soundcloud_uploads/upload.js").read(), genre_name)
         print(f"{len(all_uploads_titles)} tracks has been uploaded")
-        print("Upload successful")
         self.result['upload_count'] = len(all_uploads_img)
         self.driver.sleep(2)
 
@@ -170,9 +159,13 @@ class SoundCloud:
         """
 
         print("Monetizing Tracks ....")
-        not_allowed_text = self.driver.get_text("#right-before-content > div", timeout=Settings.TIMEOUT)
-        if not_allowed_text == "You don't have access to this page.":
-            return False
+        try:
+            not_allowed_text = self.driver.get_text("#right-before-content > div", timeout=Settings.TIMEOUT)
+            if not_allowed_text == "You don't have access to this page.":
+                return False
+
+        except TimeoutException:
+            pass
 
         self.driver.sleep(2)
         all_monetize_track_btns = wait_for_elements_presence(self.driver,

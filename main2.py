@@ -5,11 +5,9 @@ import redis
 import random
 
 from selenium.common import InvalidSessionIdException
-from seleniumbase import Driver
 from apscheduler.schedulers.blocking import BlockingScheduler
 from seleniumbase.common.exceptions import NoSuchWindowException
 
-from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from helpers import create_driver
@@ -49,7 +47,7 @@ def automation_process():
         # Get or set the prompt to use
         all_prompt_info = [json.loads(item) for item in r.lrange("daily_prompts", 0, -1)]
         if not all_prompt_info:
-            all_prompt_info = [parse_prompts() for _ in range(5)]
+            all_prompt_info = [parse_prompts() for _ in range(4)]
             for item in all_prompt_info:
                 r.lpush("daily_prompts", json.dumps(item))
 
@@ -68,8 +66,6 @@ def automation_process():
         while int(current_suno_act_index) < len(all_suno_accounts):
             suno_acct = all_suno_accounts[int(current_suno_act_index)]
             suno_download_result = []
-
-
 
             try:
                 run_suno_bot(webdriver, suno_acct[0], suno_acct[1], all_prompt_info, suno_download_result)
@@ -107,14 +103,13 @@ def automation_process():
                 r.set("no_of_downloaded_tracks", (int(no_of_downloaded_tracks) + len(suno_download_result)))
 
             wait_randomly()
-            print(f"Current number of downloaded tracks: {no_of_downloaded_tracks}")
-            print(f"Suno downloads finished for account {suno_acct[0]}")
+            print(f"Suno downloads finished for account {suno_acct[0]}\n\n")
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
             if ((int(r.get('next_suno_acct_index')) + 1) % 5) == 0:
                 wait_randomly()
 
-                print("Starting soundcloud upload and monetization")
+                print("\n\nStarting soundcloud upload and monetization")
 
                 # Get or set the active soundcloud account index to run
                 current_soundcloud_acct_index: int = r.get("next_soundcloud_acct_index")
@@ -131,14 +126,12 @@ def automation_process():
                     no_of_downloaded_tracks = int(r.get("no_of_downloaded_tracks"))
                 except TypeError:
                     no_of_downloaded_tracks = 0
-                print(f"Soundcloud index to use: {current_soundcloud_acct_index}")
 
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
 
                 all_suno_download_results = []
                 while (int(current_soundcloud_acct_index)) < len(all_soundcloud_accounts):
-                    print("Preparing to start process")
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
 
@@ -147,14 +140,14 @@ def automation_process():
                         r.delete("suno_download_results")
 
                     running_soundcloud_acct = all_soundcloud_accounts[int(current_soundcloud_acct_index)]
-                    print(running_soundcloud_acct)
                     soundcloud_results = []
                     try:
                         run_soundcloud_bot(
                             webdriver, soundcloud_link, running_soundcloud_acct[0],
                             running_soundcloud_acct[1], all_suno_download_results, soundcloud_results
                         )
-                    except Exception:
+                    except Exception as e:
+                        print(e)
                         print("Got exception from Soundcloud")
 
                     else:
@@ -162,12 +155,12 @@ def automation_process():
                         # Store the soundcloud result on the redis server
                         # Get the previously stored result from the redis server
                         previous_stored = [json.loads(item) for item in r.lrange("soundcloud_results", 0, -1)]
-                        for each in previous_stored:
-                            for result in soundcloud_results:
+                        for result in soundcloud_results:
+                            for each in previous_stored:
                                 if each["account"] == result["account"]:
                                     result["upload_count"] += each["upload_count"]
                                     result["monetization_count"] += each["monetization_count"]
-                                    r.lpush("soundcloud_results", json.dumps(result))
+                            r.lpush("soundcloud_results", json.dumps(result))
 
                     # Close and re-open a driver after each soundcloud operation is completed
                     webdriver.quit()
@@ -202,6 +195,4 @@ def automation_process():
     else:
         print("No Soundcloud account or Suno account found !!")
 
-
-# sched.start()
-
+sched.start()

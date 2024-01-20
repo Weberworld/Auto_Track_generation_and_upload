@@ -1,8 +1,7 @@
 import re
 
+from selenium.common import ElementClickInterceptedException
 from seleniumbase.common.exceptions import TimeoutException
-
-# from seleniumbase import Driver
 
 from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down
 from settings import Settings
@@ -55,7 +54,7 @@ class SunoAI:
         wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonTrigger")[0].click()
         # Click sign out button
         wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonPopoverActionButton__signOut")[0].click()
-        self.driver.sleep(5)
+        self.driver.sleep(3)
 
     def create_song(self, prompt):
         """
@@ -66,7 +65,7 @@ class SunoAI:
         self.driver.get(Settings.SUNO_BASE_URL + "create")
         prompt_input_ele = "div.chakra-stack.css-131jemj > div.chakra-stack.css-10k728o > textarea"
         self.driver.type(prompt_input_ele, prompt, timeout=Settings.TIMEOUT)
-        return
+
         self.driver.click("div.chakra-stack.css-10k728o > div > button.chakra-button")
 
     @handle_exception(retry=True)
@@ -77,51 +76,55 @@ class SunoAI:
                       -no_of_tracks::]
         return select_btns
 
-    def select_an_option_from_a_track(self, option_sel_btn_ele, option: int):
+    def wait_for_new_downloads(self, secs=Settings.TIMEOUT):
         """
-        Selects an option from the track selection list
-        :param option_sel_btn_ele:
-        :param option: index of the option to select
-        :return:
+        Wait for the availability or new downloads
+        @param secs: No of sect ot wait for
+        @return:
         """
-        try:
-            option_sel_btn_ele.click()
-            self.driver.sleep(2)
-
-            scroll_down(self.driver)
-
-            loading = True
-            # Wait until two minutes if track cannot be downloaded
-            max_wait_limit_in_secs = 0
-            while loading and max_wait_limit_in_secs < Settings.TIMEOUT:
-                if self.driver.execute_script(
-                        "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
-                    self.driver.sleep(1)
-                    max_wait_limit_in_secs += 1
-                else:
-                    loading = False
-            wait_for_elements_to_be_clickable(self.driver, "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[option].click()
-
-            self.driver.sleep(2)
-            # download_btn.click()
-        except Exception:
-            scroll_down(self.driver)
-            wait_for_elements_to_be_clickable(self.driver, "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[option].click()
+        loading = True
+        # Wait until two minutes if track cannot be downloaded
+        max_wait_limit_in_secs = 0
+        while loading and max_wait_limit_in_secs < secs:
+            if self.driver.execute_script(
+                    "return (document.querySelector('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem > div.chakra-spinner'))"):
+                self.driver.sleep(1)
+                max_wait_limit_in_secs += 1
+            else:
+                loading = False
 
     @handle_exception(retry=True)
-    def download_track(self, track_opt_btn_ele):
+    def download_track(self):
         """
         Downloads a track
-        :param track_opt_btn_ele: Track options selection element
         """
         print("Downloading track ....")
-        self.select_an_option_from_a_track(track_opt_btn_ele, option=3)
+        try:
+            self.driver.sleep(2)
+
+            # Wait until two minutes if track cannot be downloaded
+            self.wait_for_new_downloads(secs=120)
+            download_btn = wait_for_elements_to_be_clickable(self.driver,
+                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
+                3]
+            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            self.driver.execute_script(
+                "document.querySelectorAll('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem')[3].click()")
+            self.driver.sleep(2)
+        except (TimeoutException, ElementClickInterceptedException):
+            download_btn = wait_for_elements_to_be_clickable(self.driver,
+                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[
+                3]
+            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            self.driver.execute_script(
+                "document.querySelectorAll('div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem')[3].click()")
 
     def scrap_details(self) -> tuple:
         """
         Scraps the webpage for track titles and genre names
         :return:
         """
+        self.wait_for_new_downloads()
         all_titles = wait_for_elements_presence(self.driver, "p.chakra-text.css-1fq6tx5")[
                      -Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES::]
         all_genre_list = wait_for_elements_presence(self.driver, "p.chakra-text.css-1icp0bk")[
@@ -142,18 +145,17 @@ class SunoAI:
             print(prompt["prompt"])
             try:
                 self.create_song(prompt['prompt'])
-            except (TimeoutException, IndexError, Exception):
+            except (TimeoutException, Exception):
+                print("Unable to create track. No credits found")
                 return
+
             generated_tracks_sel_btn = self.get_generated_tracks_selection(Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES)
             index = 0
             for btn_ele in generated_tracks_sel_btn:
+                btn_ele.click()
 
-                self.download_track(btn_ele)
-                # Scrap the tracks title and tag list
                 scraped_details = self.scrap_details()
-                # Get the img download link
-                img_src = self.driver.execute_script(
-                    "return (document.querySelector('div.css-rdnx5m > img').getAttribute('src'))")
+
                 track_title: str = scraped_details[0][index].text
                 # Check if the title exists in the formally downloaded track titles
                 for each in store_into:
@@ -162,6 +164,12 @@ class SunoAI:
                         new_track_title = (track_title + " 2nd version")
                         rename_downloaded_audio_file(track_title, (new_track_title + ".mp3"))
                         track_title = new_track_title
+
+                self.download_track()
+
+                # Get the img download link
+                img_src = self.driver.execute_script(
+                    "return (document.querySelector('div.css-rdnx5m > img').getAttribute('src'))")
 
                 # Download the track image
                 img_path = download_image(img_src, track_title)
@@ -179,8 +187,11 @@ class SunoAI:
                 print(track_details)
                 index += 1
                 store_into.append(track_details)
+
+                scroll_down(self.driver)
                 self.driver.sleep(2)
-            self.driver.sleep(5)
+
+        self.driver.sleep(5)
 
 
 def run_suno_bot(driver, username, password, prompt, store):

@@ -114,8 +114,7 @@ def sign_in_with_microsoft(driver, username, password):
     if re.search(f"^{Settings.SUNO_BASE_URL}", driver.current_url):
         return
 
-    driver.click_if_visible("#KmsiCheckboxField", timeout=Settings.TIMEOUT)
-    driver.click_if_visible("#idSIButton9", timeout=Settings.TIMEOUT)
+    driver.click_if_visible("#idBtn_Back", timeout=Settings.TIMEOUT)
 
 
 def sign_in_with_google(driver, username, password):
@@ -257,17 +256,20 @@ def send_daily_statistics(no_of_tracks_downloaded: int, no_of_all_suno_accounts:
         telegram_message += f"— Chansons monétisées : <i>{upload_details['monetization_count']}</i>\n"
         if index < len(result_from_soundcloud):
             telegram_message += f"——————————————————————————\n"
-
+    print(telegram_message)
     send_telegram_message(telegram_message)
 
 
 def rename_downloaded_audio_file(filename, new_filename):
+    dir_path = os.path.join(os.getcwd(), "downloaded_files")
     try:
-        dir_path = os.path.join(os.getcwd(), "downloaded_files")
         os.rename(os.path.join(dir_path, (filename + ".mp3")), os.path.join(dir_path, new_filename))
         print(f"Renamed {filename} to {new_filename}")
     except FileNotFoundError:
         pass
+    except FileExistsError:
+        # Add ep2 to the file title name if the title with the second version already exists
+        os.rename(os.path.join(dir_path, (filename + ".mp3")), os.path.join(dir_path, (new_filename + "ep2.mp3")))
 
 
 def scroll_down(driver):

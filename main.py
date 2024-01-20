@@ -36,14 +36,12 @@ def automation_process():
         #   Run 5 suno bot concurrently
         all_suno_threads = []
         for account in all_suno_accounts[suno_start_index:suno_end_index]:
-            break
             username = account[0]
             password = account[1]
 
-            driver = create_driver()
             suno_thread = Thread(name="Suno Thread {}".format((all_suno_accounts.index(account) + 1)),
                                  target=run_suno_bot,
-                                 args=(driver, username, password, all_daily_prompts,
+                                 args=(create_driver(), username, password, all_daily_prompts,
                                        all_downloaded_audios_info))
             suno_thread.start()
             print(suno_thread.name + " started")
@@ -77,7 +75,6 @@ def automation_process():
                 all_soundcloud_threads.append(soundcloud_thread)
                 time.sleep(2)
 
-
             # Wait for all suno thread to finish
             for soundcloud_thread in all_soundcloud_threads:
                 soundcloud_thread.join()
@@ -87,7 +84,7 @@ def automation_process():
             soundcloud_start_index = soundcloud_end_index
             soundcloud_end_index += Settings.CONCURRENT_PROCESS
 
-        # delete_downloaded_files()
+        delete_downloaded_files()
 
         if suno_end_index >= len(all_suno_accounts):
             break
@@ -104,7 +101,3 @@ def automation_process():
 
 # sched.start()
 automation_process()
-
-
-sched.start()
-
