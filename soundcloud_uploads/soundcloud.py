@@ -168,8 +168,8 @@ class SoundCloud:
             pass
 
         self.driver.sleep(2)
-        all_monetize_track_btns = wait_for_elements_presence(self.driver,
-                                                             "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
+        all_monetize_track_btns = wait_for_elements_to_be_clickable(self.driver,
+                                                                    "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
                 btn_ele.click()
@@ -207,7 +207,7 @@ class SoundCloud:
                 self.driver.execute_script(fill_form_js_script)
                 self.driver.sleep(3)
         #  Adds the no of tracks monetized from a page to the result attribute
-        self.result["monetization_count"] += len(all_monetize_track_btns)
+        self.result["monetization_count"] += (len(all_monetize_track_btns) + 1)
         pagination_btn = self.driver.find_elements(
             "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
         for each in pagination_btn:
