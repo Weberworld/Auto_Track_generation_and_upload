@@ -130,8 +130,7 @@ class SoundCloud:
                                                         'div.baseFields__data > div.baseFields__title > div.textfield > div.textfield__inputWrapper > input')
         all_uploads_img = wait_for_elements_presence(self.driver, 'input.imageChooser__fileInput.sc-visuallyhidden')
         all_uploads_tags = wait_for_elements_presence(self.driver, 'input.tagInput__input.tokenInput__input')
-        all_uploaded_song_save_btn_ele = wait_for_elements_to_be_clickable(self.driver,
-                                                                           "div.activeUpload__formButtons.sc-button-toolbar > button.sc-button-cta.sc-button")
+
         print("Filling Tracks upload form ...")
         for each in all_uploads_titles:
             for audio_info in downloaded_audios_info:
