@@ -1,14 +1,18 @@
+import os
 import re
 import time
 import pyperclip
 from selenium.common import ElementClickInterceptedException, JavascriptException
 
 from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from seleniumbase.common.exceptions import TimeoutException, NoSuchWindowException, NoSuchElementException
 
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
-from utils import sign_in_with_google, get_all_downloaded_audios
+from utils import sign_in_with_google, get_all_downloaded_audios, scroll_down
 
 SOUND_CLOUD_BASE_URL = "https://api.soundcloud.com/"
 
@@ -164,7 +168,55 @@ class SoundCloud:
         self.driver.execute_script(open("soundcloud_uploads/upload.js").read(), genre_name)
         print(f"{len(all_uploads_titles)} tracks has been uploaded")
         self.result['upload_count'] = len(all_uploads_img)
-        self.driver.sleep(2)
+        self.driver.sleep(5)
+
+    def fill_monetization_form(self, btn_ele, no_of_retry=3):
+        """ Fills the monetization form for a track and retry for the no_of_retry if a javascript error is raised"""
+        self.driver.execute_script("arguments[0].click()", btn_ele)
+        wait_for_elements_presence(self.driver, "#monetization-form")
+        self.driver.sleep(1)
+        fill_form_js_script = """
+            let form_ele = document.getElementById("monetization-form");
+
+            // Click on the content rating 
+            form_ele.querySelector("div > div:nth-child(1) > div > label > div.mt-1 > div > div > button").click(); 
+
+            // Get the content rating select list
+            let content_rating_select_list_ele = form_ele.querySelector("div > div:nth-child(1) > div > label > div.mt-1 > div > ul");
+            let rating_options = content_rating_select_list_ele.getElementsByTagName("li");
+
+            // Loop through the rating options and select the Explicit option
+            for (let i = 0; i < rating_options.length; i++) {
+                if (rating_options[i].textContent == "Explicit") {
+                    rating_options[i].click();
+                    break;
+                }
+            }
+            // In the songwriter options select "Another writer"
+            form_ele.querySelector("div.mb-3 > div > div:nth-child(1) > div.flex > label > div.mt-1 > label:nth-child(2) > div > input").click();
+
+            // Mark that you agree to the T/C
+            form_ele.querySelector("div:nth-child(15) > div input").click()
+
+            // Submit the form_ele
+            form_ele.querySelector("div:nth-child(16) > button:nth-child(2)").click();
+
+            // Click on the cancel btn
+            form_ele.querySelector("div:nth-child(16) > button").click();
+        """
+        try:
+            self.driver.execute_script(fill_form_js_script)
+        except JavascriptException:
+            # If this exception is raised. Re-run the function and execute the script again
+            self.driver.execute_script("arguments[0].click()", btn_ele)
+            if not no_of_retry <= 0:
+                self.fill_monetization_form(btn_ele, (no_of_retry - 1))
+            else:
+                print("Retry exceeded")
+        except NoSuchElementException:
+            pass
+        except Exception as e:
+            print(e)
 
     def monetize_track(self, max_num_of_pages=3):
         """
@@ -172,77 +224,52 @@ class SoundCloud:
         """
 
         print("Monetizing Tracks ....")
+        #  Check if the account is allowed for monetization
         try:
             not_allowed_text = self.driver.get_text("#right-before-content > div", timeout=Settings.TIMEOUT)
             if not_allowed_text == "You don't have access to this page.":
                 return False
-
         except TimeoutException:
             pass
 
         self.driver.sleep(2)
-        all_monetize_track_btns = wait_for_elements_to_be_clickable(self.driver,
-                                                                    "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
+
+        # Get the monetization btn elements
+        try:
+            WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(text(), 'Monetize this track')]")))
+            all_monetize_track_btns = self.driver.find_elements(
+                By.XPATH, "//button[contains(text(), 'Monetize this track')]")
+        except TimeoutException:
+            try:
+                self.driver.refresh()
+                WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable(
+                    (By.XPATH, "//button[contains(text(), 'Monetize this track')]")))
+                all_monetize_track_btns = self.driver.find_elements(
+                    By.XPATH, "//button[contains(text(), 'Monetize this track')]")
+            except TimeoutException:
+                print("No song to monetize!")
+                all_monetize_track_btns = []
+
         print(f"Found {len(all_monetize_track_btns)} tracks to monetize")
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
-                self.driver.execute_script("arguments[0].click()", btn_ele)
-                wait_for_elements_presence(self.driver, "#monetization-form")
-                self.driver.sleep(1)
-                fill_form_js_script = """
-                    let form_ele = document.getElementById("monetization-form");
-                    
-                    // Click on the content rating 
-                    form_ele.querySelector("div > div:nth-child(1) > div > label > div.mt-1 > div > div > button").click(); 
-                    
-                    // Get the content rating select list
-                    let content_rating_select_list_ele = form_ele.querySelector("div > div:nth-child(1) > div > label > div.mt-1 > div > ul");
-                    let rating_options = content_rating_select_list_ele.getElementsByTagName("li");
-                    
-                    // Loop through the rating options and select the Explicit option
-                    for (let i = 0; i < rating_options.length; i++) {
-                        if (rating_options[i].textContent == "Explicit") {
-                            rating_options[i].click();
-                            break;
-                        }
-                    }
-                    // In the songwriter options select "Another writer"
-                    form_ele.querySelector("div.mb-3 > div > div:nth-child(1) > div.flex > label > div.mt-1 > label:nth-child(2) > div > input").click();
-                
-                    // Mark that you agree to the T/C
-                    form_ele.querySelector("div:nth-child(15) > div input").click()
-                
-                    // Submit the form_ele
-                    form_ele.querySelector("div:nth-child(16) > button:nth-child(2)").click();
-                
-                    // Click on the cancel btn
-                    form_ele.querySelector("div:nth-child(16) > button").click();
-                """
-                try:
-                    self.driver.execute_script(fill_form_js_script)
-                except JavascriptException:
-                    # If this exception is raised. Re-run the function and execute the script again
-                    self.driver.execute_script("arguments[0].click()", btn_ele)
-                    self.monetize_track(max_num_of_pages)
-                except NoSuchElementException:
-                    continue
-                except Exception as e:
-                    print(e)
-
+                self.fill_monetization_form(btn_ele)
                 self.driver.sleep(2)
         #  Adds the no of tracks monetized from a page to the result attribute
         self.result["monetization_count"] += len(all_monetize_track_btns)
-        pagination_btn = self.driver.find_elements(
-            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
+        scroll_down(self.driver)
+        # Paginates to the next page if not more than the max_num_of_pages
+        pagination_btn = self.driver.find_element(
+            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)",
+            timeout=Settings.TIMEOUT)
         if max_num_of_pages > 0:
-            for each in pagination_btn:
-                if each.text == "Next":
-                    print("Navigating to monetization next page")
-                    each.click()
-                    self.monetize_track((max_num_of_pages - 1))
-                    break
+            if pagination_btn.text == "Next" and pagination_btn.is_enabled():
+                print("Navigating to monetization next page")
+                pagination_btn.click()
+                self.driver.sleep(3)
+                self.monetize_track((max_num_of_pages - 1))
         print(f"{len(all_monetize_track_btns)} tracks has been monetized")
-        return
 
     @handle_exception()
     def sync_soundcloud_tracks(self):
@@ -255,7 +282,7 @@ class SoundCloud:
         try:
             self.driver.click_if_visible("#right-before-content > div > div > button", timeout=Settings.TIMEOUT)
             print("Waiting for a minute for soundcloud synchronization")
-            self.driver.sleep(60)
+            self.driver.sleep(300)
             return True
         except (TimeoutException, IndexError):
             return False

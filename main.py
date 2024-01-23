@@ -25,8 +25,8 @@ def automation_process():
     print(f"Got {len(all_suno_accounts)} Suno accounts")
     print(f"Got {len(all_soundcloud_account)} Soundcloud accounts")
 
-    # Get the 5 prompts to be used from a single genre
-    all_daily_prompts = [parse_prompts() for _ in range(5)]
+    # Get the set number of prompts to be used from a single genre
+    all_daily_prompts = [parse_prompts() for _ in range(Settings.CONCURRENT_PROCESS)]
 
     genre_used = all_daily_prompts[0]["genre"]
 
@@ -100,6 +100,8 @@ def automation_process():
             if result["account"] == each["account"]:
                 result["upload_count"] += each["upload_count"]
                 result["monetization_count"] += each["monetization_count"]
+                merged_soundcloud_result.remove(each)
+
         merged_soundcloud_result.append(result)
 
     send_daily_statistics(len(all_downloaded_audios_info), len(all_suno_accounts), genre_used, merged_soundcloud_result)

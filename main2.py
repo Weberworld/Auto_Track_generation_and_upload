@@ -8,6 +8,7 @@ from selenium.common import InvalidSessionIdException
 from apscheduler.schedulers.blocking import BlockingScheduler
 from seleniumbase.common.exceptions import NoSuchWindowException
 
+from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from helpers import create_driver
@@ -47,7 +48,7 @@ def automation_process():
         # Get or set the prompt to use
         all_prompt_info = [json.loads(item) for item in r.lrange("daily_prompts", 0, -1)]
         if not all_prompt_info:
-            all_prompt_info = [parse_prompts() for _ in range(4)]
+            all_prompt_info = [parse_prompts() for _ in range(Settings.CONCURRENT_PROCESS)]
             for item in all_prompt_info:
                 r.lpush("daily_prompts", json.dumps(item))
 
@@ -106,7 +107,8 @@ def automation_process():
             print(f"Suno downloads finished for account {suno_acct[0]}\n\n")
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
-            if stored_suno_download_result and ((int(r.get('next_suno_acct_index')) + 1) % 5) == 0:
+            if stored_suno_download_result and (
+                    (int(r.get('next_suno_acct_index')) + 1) % Settings.CONCURRENT_PROCESS) == 0:
                 wait_randomly()
 
                 print("\n\nStarting soundcloud upload and monetization")
@@ -155,12 +157,19 @@ def automation_process():
                         # Store the soundcloud result on the redis server
                         # Get the previously stored result from the redis server
                         previous_stored = [json.loads(item) for item in r.lrange("soundcloud_results", 0, -1)]
+                        merged_store = []
+                        # Add the session stats for same accounts
                         for result in soundcloud_results:
                             for each in previous_stored:
                                 if each["account"] == result["account"]:
                                     result["upload_count"] += each["upload_count"]
                                     result["monetization_count"] += each["monetization_count"]
-                            r.lpush("soundcloud_results", json.dumps(result))
+                                    merged_store.remove(each)
+                                    break
+                            merged_store.append(result)
+
+                        for each in merged_store:
+                            r.lpush("soundcloud_results", json.dumps(each))
 
                     # Close and re-open a driver after each soundcloud operation is completed
                     webdriver.quit()
@@ -194,5 +203,6 @@ def automation_process():
 
     else:
         print("No Soundcloud account or Suno account found !!")
+
 
 sched.start()

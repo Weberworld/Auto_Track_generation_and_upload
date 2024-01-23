@@ -176,6 +176,7 @@ class SunoAI:
             generated_tracks_sel_btn = self.get_generated_tracks_selection()
             index = 0
             for btn_ele in generated_tracks_sel_btn:
+                self.driver.sleep(2)
                 self.driver.execute_script("arguments[0].click()", btn_ele)
 
                 if not self.wait_for_new_track_to_be_ready():
@@ -185,12 +186,18 @@ class SunoAI:
 
                 track_title: str = scraped_details[0][index].text
                 # Check if the title exists in the formally downloaded track titles
+                count = 0
                 for each in store_into:
-                    if each['title'] in track_title:
-                        # Add extra text to the duplicated track title
-                        new_track_title = rename_track_with_version_number(track_title)
-                        rename_downloaded_audio_file(track_title, (new_track_title + ".mp3"))
-                        track_title = new_track_title
+                    if each['title'] == track_title or each['title'].startswith(track_title + " -"):
+                        count += 1
+                # Add extra text to the duplicated track title
+                if count > 0:
+                    # Use the correct ordinal suffix for the version number
+                    suffix = "th" if count > 2 else "nd" if count == 1 else "rd"
+                    new_track_title = (track_title + " - " + str(count + 1) + suffix + "version")
+                    rename_downloaded_audio_file(track_title, (new_track_title + ".mp3"))
+                    track_title = new_track_title
+
                 track_tags = scraped_details[1][index]
                 genre = prompt["genre"]
                 downloaded_track = self.download_track(account_username, track_title, track_tags, genre)
