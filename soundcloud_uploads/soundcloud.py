@@ -4,7 +4,7 @@ import pyperclip
 from selenium.common import ElementClickInterceptedException, JavascriptException
 
 from selenium.webdriver import Keys
-from seleniumbase.common.exceptions import TimeoutException, NoSuchWindowException
+from seleniumbase.common.exceptions import TimeoutException, NoSuchWindowException, NoSuchElementException
 
 from helpers import handle_exception, wait_for_elements_presence, wait_for_elements_to_be_clickable
 from settings import Settings
@@ -166,7 +166,7 @@ class SoundCloud:
         self.result['upload_count'] = len(all_uploads_img)
         self.driver.sleep(2)
 
-    def monetize_track(self):
+    def monetize_track(self, max_num_of_pages=3):
         """
             Monetize all the monetized tracks on the account. Paginates to the next page if need be
         """
@@ -183,10 +183,12 @@ class SoundCloud:
         self.driver.sleep(2)
         all_monetize_track_btns = wait_for_elements_to_be_clickable(self.driver,
                                                                     "#right-before-content > div.my-3 > div > div > div:nth-child(2) > div > button")
+        print(f"Found {len(all_monetize_track_btns)} tracks to monetize")
         for btn_ele in all_monetize_track_btns:
             if btn_ele.text == "Monetize this track":
-                btn_ele.click()
+                self.driver.execute_script("arguments[0].click()", btn_ele)
                 wait_for_elements_presence(self.driver, "#monetization-form")
+                self.driver.sleep(1)
                 fill_form_js_script = """
                     let form_ele = document.getElementById("monetization-form");
                     
@@ -220,19 +222,25 @@ class SoundCloud:
                     self.driver.execute_script(fill_form_js_script)
                 except JavascriptException:
                     # If this exception is raised. Re-run the function and execute the script again
-                    btn_ele.click()
-                    self.monetize_track()
+                    self.driver.execute_script("arguments[0].click()", btn_ele)
+                    self.monetize_track(max_num_of_pages)
+                except NoSuchElementException:
+                    continue
+                except Exception as e:
+                    print(e)
+
                 self.driver.sleep(2)
         #  Adds the no of tracks monetized from a page to the result attribute
         self.result["monetization_count"] += len(all_monetize_track_btns)
         pagination_btn = self.driver.find_elements(
             "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
-        for each in pagination_btn:
-            if each.text == "Next":
-                print("Navigating to monetization next page")
-                each.click()
-                self.monetize_track()
-                break
+        if max_num_of_pages > 0:
+            for each in pagination_btn:
+                if each.text == "Next":
+                    print("Navigating to monetization next page")
+                    each.click()
+                    self.monetize_track((max_num_of_pages - 1))
+                    break
         print(f"{len(all_monetize_track_btns)} tracks has been monetized")
         return
 

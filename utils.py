@@ -284,3 +284,21 @@ def scroll_down(driver):
         if new_height == last_height:
             break
         last_height = new_height
+
+
+def rename_track_with_version_number(title: str):
+    match_exists = re.search("\\d.+ v", title.lower())
+    if match_exists:
+        match_text = match_exists.group().strip(" v")
+        version_pos = int(match_text[0:-2]) + 1
+        if str(version_pos).endswith("1") and version_pos != 11:
+            title = title.replace(match_text, f"{version_pos}st")
+        elif str(version_pos).endswith("2") and version_pos != 12:
+            title = title.replace(match_text, f"{version_pos}nd")
+        elif str(version_pos).endswith("3") and version_pos != 13:
+            title = title.replace(match_text, f"{version_pos}rd")
+        else:
+            title = title.replace(match_text,f"{version_pos}th")
+    else:
+        title += " 2nd Version"
+    return title

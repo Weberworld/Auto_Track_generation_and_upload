@@ -106,7 +106,7 @@ def automation_process():
             print(f"Suno downloads finished for account {suno_acct[0]}\n\n")
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
-            if ((int(r.get('next_suno_acct_index')) + 1) % 5) == 0:
+            if stored_suno_download_result and ((int(r.get('next_suno_acct_index')) + 1) % 5) == 0:
                 wait_randomly()
 
                 print("\n\nStarting soundcloud upload and monetization")

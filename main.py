@@ -52,36 +52,37 @@ def automation_process():
         for suno_thread in all_suno_threads:
             suno_thread.join()
 
-        # Upload the downloaded tracks to soundcloud
-        soundcloud_start_index = 0
-        soundcloud_end_index = Settings.CONCURRENT_PROCESS
-        while True:
-            #  Run 5 soundcloud bots concurrently
-            all_soundcloud_threads = []
-            for account in all_soundcloud_account[soundcloud_start_index:soundcloud_end_index]:
-                # Create a SoundCloud bot instance
-                username = account[0]
-                password = account[1]
+        if all_downloaded_audios_info:
+            # Upload the downloaded tracks to soundcloud
+            soundcloud_start_index = 0
+            soundcloud_end_index = Settings.CONCURRENT_PROCESS
+            while True:
+                #  Run 5 soundcloud bots concurrently
+                all_soundcloud_threads = []
+                for account in all_soundcloud_account[soundcloud_start_index:soundcloud_end_index]:
+                    # Create a SoundCloud bot instance
+                    username = account[0]
+                    password = account[1]
 
-                driver = create_driver()
+                    driver = create_driver()
 
-                soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
-                                           args=(driver, os.getenv("SOUNDCLOUD_LINK"), username, password,
-                                                 all_downloaded_audios_info, result_from_soundcloud)
-                                           )
-                soundcloud_thread.start()
-                print(soundcloud_thread.name + " started")
-                all_soundcloud_threads.append(soundcloud_thread)
-                time.sleep(2)
+                    soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
+                                               args=(driver, os.getenv("SOUNDCLOUD_LINK"), username, password,
+                                                     all_downloaded_audios_info, result_from_soundcloud)
+                                               )
+                    soundcloud_thread.start()
+                    print(soundcloud_thread.name + " started")
+                    all_soundcloud_threads.append(soundcloud_thread)
+                    time.sleep(2)
 
-            # Wait for all suno thread to finish
-            for soundcloud_thread in all_soundcloud_threads:
-                soundcloud_thread.join()
+                # Wait for all suno thread to finish
+                for soundcloud_thread in all_soundcloud_threads:
+                    soundcloud_thread.join()
 
-            if soundcloud_end_index >= len(all_soundcloud_account):
-                break
-            soundcloud_start_index = soundcloud_end_index
-            soundcloud_end_index += Settings.CONCURRENT_PROCESS
+                if soundcloud_end_index >= len(all_soundcloud_account):
+                    break
+                soundcloud_start_index = soundcloud_end_index
+                soundcloud_end_index += Settings.CONCURRENT_PROCESS
 
         delete_downloaded_files()
 
@@ -93,7 +94,15 @@ def automation_process():
 
     print("Sending Message")
     # Send the statistical report for the whole day process
-    send_daily_statistics(len(all_downloaded_audios_info), len(all_suno_accounts), genre_used, result_from_soundcloud)
+    merged_soundcloud_result = []
+    for result in result_from_soundcloud:
+        for each in merged_soundcloud_result:
+            if result["account"] == each["account"]:
+                result["upload_count"] += each["upload_count"]
+                result["monetization_count"] += each["monetization_count"]
+        merged_soundcloud_result.append(result)
+
+    send_daily_statistics(len(all_downloaded_audios_info), len(all_suno_accounts), genre_used, merged_soundcloud_result)
 
     print("done")
 

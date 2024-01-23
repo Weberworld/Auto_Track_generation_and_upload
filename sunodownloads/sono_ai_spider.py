@@ -3,7 +3,8 @@ import re
 from selenium.common import JavascriptException
 from seleniumbase.common.exceptions import TimeoutException
 
-from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down
+from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down, \
+    rename_track_with_version_number
 from settings import Settings
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
 
@@ -11,7 +12,7 @@ from helpers import wait_for_elements_presence, handle_exception, wait_for_eleme
 class SunoAI:
     def __init__(self, driver):
         """
-        # :param driver: Seleniumbase driver object
+        :param driver: Seleniumbase driver object
         """
         self.driver = driver
         self.driver.set_window_size(1920, 1080)
@@ -77,11 +78,20 @@ class SunoAI:
             "button.chakra-button.chakra-menu__menu-button.css-o244em")[-Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES::]
         return select_btns
 
+    def wait_for_new_track(self):
+        self.driver.sleep(2)
+        secs_waited_for = 0
+        while self.driver.execute_script(
+                "return (document.querySelector('.chakra-spinner.css-12wh8ho'))") and secs_waited_for <= Settings.TIMEOUT:
+            self.driver.sleep(1)
+            secs_waited_for += 1
+
     def wait_for_new_track_to_be_ready(self):
         """
         Wait for a set number of minutes until the track is ready for download
         """
-        print(f"Waiting for track to be ready for download within {Settings.MAX_TIME_FOR_SUNO_GENERATION / 60} minutes ....")
+        print(
+            f"Waiting for track to be ready for download within {Settings.MAX_TIME_FOR_SUNO_GENERATION / 60} minutes ....")
         scroll_down(self.driver)
         max_wait_limit_in_secs = 0
         while max_wait_limit_in_secs < Settings.MAX_TIME_FOR_SUNO_GENERATION:
@@ -95,9 +105,11 @@ class SunoAI:
             return False
 
         try:
-            download_btn = wait_for_elements_to_be_clickable(self.driver,
-                                                             "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")[3]
-            self.driver.execute_script("arguments[0].scrollIntoView();", download_btn)
+            download_btns = wait_for_elements_to_be_clickable(self.driver,
+                                                              "div.css-yle5y0 > div > div > div > div > div > div > div > button.chakra-menu__menuitem")
+            # Check if the list is not empty
+            if download_btns and download_btns[3].is_enabled():
+                self.driver.execute_script("arguments[0].scrollIntoView();", download_btns[3])
             return True
         except TimeoutException:
             print(f"Track was not ready for download after {Settings.MAX_TIME_FOR_SUNO_GENERATION / 60} minutes")
@@ -141,14 +153,6 @@ class SunoAI:
                          -Settings.NO_OF_TRACKS_SUNO_ACCOUNT_GENERATES::]
         return all_titles, all_genre_list
 
-    def wait_for_new_track(self):
-        self.driver.sleep(2)
-        secs_waited_for = 0
-        while self.driver.execute_script(
-                "return (document.querySelector('.chakra-spinner.css-12wh8ho'))") and secs_waited_for <= Settings.TIMEOUT:
-            self.driver.sleep(1)
-            secs_waited_for += 1
-
     def run(self, account_username, all_prompt_info, store_into):
         """
         Use a list of prompts to generate track and suno and store the details (title, genre, tag_list) of the downloaded track
@@ -172,7 +176,7 @@ class SunoAI:
             generated_tracks_sel_btn = self.get_generated_tracks_selection()
             index = 0
             for btn_ele in generated_tracks_sel_btn:
-                btn_ele.click()
+                self.driver.execute_script("arguments[0].click()", btn_ele)
 
                 if not self.wait_for_new_track_to_be_ready():
                     generated_tracks_sel_btn[index].click()
@@ -184,7 +188,7 @@ class SunoAI:
                 for each in store_into:
                     if each['title'] in track_title:
                         # Add extra text to the duplicated track title
-                        new_track_title = (track_title + " 2nd version")
+                        new_track_title = rename_track_with_version_number(track_title)
                         rename_downloaded_audio_file(track_title, (new_track_title + ".mp3"))
                         track_title = new_track_title
                 track_tags = scraped_details[1][index]
