@@ -1,6 +1,7 @@
 import re
 import time
 import pyperclip
+from selenium.common import ElementClickInterceptedException, JavascriptException
 
 from selenium.webdriver import Keys
 from seleniumbase.common.exceptions import TimeoutException, NoSuchWindowException
@@ -74,6 +75,14 @@ class SoundCloud:
         try:
             self.driver.click_if_visible("#onetrust-accept-btn-handler", timeout=Settings.TIMEOUT)
             print("Accepted cookies")
+        except ElementClickInterceptedException:
+            # Handle the case where the button is intercepted
+            print("Button is intercepted by another element")
+            # Use JavaScript to click on the button
+            button = self.driver.execute_script(
+                "return document.getElementById('onetrust-accept-btn-handler');")
+            self.driver.execute_script("arguments[0].click();", button)
+
         except TimeoutException:
             print("Cannot find cookies")
             pass
@@ -96,11 +105,16 @@ class SoundCloud:
         """
         Upload downloaded tracks from suno_ai_spider run to the given to the artist profile
         """
-        if len(downloaded_audios_info) == 0 or downloaded_audios_info is None:
+        print(downloaded_audios_info)
+        if not downloaded_audios_info:
             print("No tracks to upload.")
             return
 
         self.driver.uc_open(Settings.SOUND_CLOUD_BASE_URL.replace("secure.", "") + "upload")
+
+        # Dismiss if any pop up window shows up
+        self.driver.sleep(2)
+        self.driver.press_keys("button", Keys.ESCAPE)
 
         # Select the choose file to upload btn
         selected_audios = get_all_downloaded_audios()
@@ -133,6 +147,7 @@ class SoundCloud:
 
         print("Filling Tracks upload form ...")
         for each in all_uploads_titles:
+            print(each.get_attribute("value").lower())
             for audio_info in downloaded_audios_info:
                 if each.get_attribute("value").lower() == audio_info["title"].lower():
                     track_index = all_uploads_titles.index(each)
@@ -145,7 +160,7 @@ class SoundCloud:
                     pyperclip.copy(tag_list_str)
                     # Paste the tag list string from the clipboard
                     all_uploads_tags[track_index].send_keys(Keys.CONTROL, 'v')
-                    self.driver.sleep(2)
+                    self.driver.sleep(1)
                     break
         self.driver.execute_script(open("soundcloud_uploads/upload.js").read(), genre_name)
         print(f"{len(all_uploads_titles)} tracks has been uploaded")
@@ -202,11 +217,15 @@ class SoundCloud:
                     // Click on the cancel btn
                     form_ele.querySelector("div:nth-child(16) > button").click();
                 """
-
-                self.driver.execute_script(fill_form_js_script)
-                self.driver.sleep(3)
+                try:
+                    self.driver.execute_script(fill_form_js_script)
+                except JavascriptException:
+                    # If this exception is raised. Re-run the function and execute the script again
+                    btn_ele.click()
+                    self.monetize_track()
+                self.driver.sleep(2)
         #  Adds the no of tracks monetized from a page to the result attribute
-        self.result["monetization_count"] += (len(all_monetize_track_btns) + 1)
+        self.result["monetization_count"] += len(all_monetize_track_btns)
         pagination_btn = self.driver.find_elements(
             "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
         for each in pagination_btn:

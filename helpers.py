@@ -65,33 +65,33 @@ def wait_for_elements_presence(driver, selector: str) -> list:
             return []
 
 
-def wait_for_elements_to_be_clickable(driver, selector: str) -> list:
+def wait_for_elements_to_be_clickable(driver, selector: str, timeout=Settings.TIMEOUT) -> list:
     """
     Returns a list of selector elements when they are clickable within a timeout range
 
     Try to get the element twice if they are not clickable yet
     :param driver: Current webdriver
     :param selector: CSS locator of an element
+    :param timeout: No of secs to wait until element is clickable. Defaults to settings timeout
     :return:
     """
 
     try:
-        WebDriverWait(driver, Settings.TIMEOUT).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+        WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
         return driver.find_elements(By.CSS_SELECTOR, selector)
 
     except TimeoutException:
         try:
-            WebDriverWait(driver, Settings.TIMEOUT).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+            WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
             return driver.find_elements(By.CSS_SELECTOR, selector)
         except TimeoutException:
             return []
 
 
-
 def create_driver():
     """
     Creates a webdriver
-    @return: Wedriver object
+    @return:  object
     """
     from seleniumbase import Driver as webDriver
 

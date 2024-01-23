@@ -2,7 +2,6 @@
 This is to be run only on local testing
 """
 
-
 import os
 import time
 from threading import Thread
@@ -16,7 +15,8 @@ from sunodownloads.sono_ai_spider import run_suno_bot
 print("started")
 sched = BlockingScheduler()
 
-# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=11, minute=53)
+
+# @sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
 def automation_process():
     all_downloaded_audios_info = list()
     all_suno_accounts = get_available_platform_accounts_v2("suno")
@@ -64,7 +64,6 @@ def automation_process():
                 password = account[1]
 
                 driver = create_driver()
-                all_downloaded_audios_info = [{"title": "Future Unknown", "img_path": os.path.join(os.getcwd(), "downloaded_files/images/Future Unknown.png"), "genre": "House", "tag_list": ["hello", "world"]}]
 
                 soundcloud_thread = Thread(name=f"Soundcloud account: {username}", target=run_soundcloud_bot,
                                            args=(driver, os.getenv("SOUNDCLOUD_LINK"), username, password,

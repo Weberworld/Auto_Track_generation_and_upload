@@ -256,7 +256,6 @@ def send_daily_statistics(no_of_tracks_downloaded: int, no_of_all_suno_accounts:
         telegram_message += f"— Chansons monétisées : <i>{upload_details['monetization_count']}</i>\n"
         if index < len(result_from_soundcloud):
             telegram_message += f"——————————————————————————\n"
-    print(telegram_message)
     send_telegram_message(telegram_message)
 
 

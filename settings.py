@@ -1,5 +1,5 @@
 class Settings:
-    HEADLESS = True
+    HEADLESS = False
 
     TIMEOUT: int = 20
 
@@ -12,11 +12,13 @@ class Settings:
     # No of credits on the suno account
     NO_SESSIONS_TO_RUN_DAILY = 5
 
-    INTERVAL_IN_HOURS = 3
-
+    # No of process to run concurrently
     CONCURRENT_PROCESS = 5
 
     MAX_RETRY = 2
 
     # Set to True if your running main.py. Leave False if you are running main2.py
-    LOCAL_TESTING = False
+    LOCAL_TESTING = True
+
+    # No of secs to wait for a suno track to be ready for download
+    MAX_TIME_FOR_SUNO_GENERATION = 120
