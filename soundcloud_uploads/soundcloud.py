@@ -147,7 +147,6 @@ class SoundCloud:
 
         print("Filling Tracks upload form ...")
         for each in all_uploads_titles:
-            print(each.get_attribute("value").lower())
             for audio_info in downloaded_audios_info:
                 if each.get_attribute("value").lower() == audio_info["title"].lower():
                     track_index = all_uploads_titles.index(each)
