@@ -1,5 +1,5 @@
 class Settings:
-    HEADLESS = False
+    HEADLESS = True
 
     TIMEOUT: int = 20
 
@@ -18,7 +18,7 @@ class Settings:
     MAX_RETRY = 2
 
     # Set to True if your running main.py. Leave False if you are running main2.py
-    LOCAL_TESTING = True
+    LOCAL_TESTING = False
 
     # No of secs to wait for a suno track to be ready for download
     MAX_TIME_FOR_SUNO_GENERATION = 120
