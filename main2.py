@@ -25,7 +25,8 @@ def wait_randomly():
 @sched.scheduled_job('cron', day_of_week='mon-sun', hour=1)
 def automation_process():
     # Connect to the redis server
-    r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
+    # r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
+    r = redis.StrictRedis(host="localhost", port=6379, db=0)
     r.flushall()
 
     wait_randomly()
@@ -79,9 +80,6 @@ def automation_process():
                 except Exception:
                     print("Exception from suno")
                     pass
-            finally:
-                pass
-
             # Append or set to the list of downloaded suno download result on the redis server
             stored_suno_download_result = [json.loads(item) for item in r.lrange("suno_download_results", 0, - 1)]
             if stored_suno_download_result is None:
@@ -107,8 +105,8 @@ def automation_process():
             print(f"Suno downloads finished for account {suno_acct[0]}\n\n")
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
-            if stored_suno_download_result and (
-                    (int(r.get('next_suno_acct_index')) + 1) % Settings.CONCURRENT_PROCESS) == 0:
+            if (stored_suno_download_result is not None and (
+                    (int(r.get('next_suno_acct_index')) + 1) % Settings.CONCURRENT_PROCESS) == 0) or (int(r.get('next_suno_acct_index')) + 1) >= len(all_suno_accounts):
                 wait_randomly()
 
                 print("\n\nStarting soundcloud upload and monetization")
@@ -195,11 +193,13 @@ def automation_process():
         # Send the alert notification if other dynos has not sent it
         try:
             current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
-            if current_soundcloud_acct_index == 0:
-                print("Sending result stats ...")
-                send_daily_statistics(no_of_downloaded_tracks, len(all_suno_accounts), genre_used, soundcloud_results)
         except TypeError:
+            current_soundcloud_acct_index = 0
             pass
+        if current_soundcloud_acct_index == 0:
+            print("Sending result stats ...")
+            send_daily_statistics(no_of_downloaded_tracks, len(all_suno_accounts), genre_used, soundcloud_results)
+            print("Done")
 
     else:
         print("No Soundcloud account or Suno account found !!")
