@@ -50,11 +50,13 @@ class SunoAI:
         """
         Sign out from a logged in suno account
         """
+        print("Signing out")
         # Click on the menu option button
         wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonTrigger")[0].click()
         # Click sign out button
         wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonPopoverActionButton__signOut")[0].click()
         self.driver.sleep(3)
+        print("Signed out")
 
     def create_song(self, prompt):
         """
@@ -167,7 +169,6 @@ class SunoAI:
             no_of_credit = self.driver.get_text(".chakra-text.css-itvw0n", timeout=Settings.TIMEOUT).split(" ")[0]
             if int(no_of_credit) < 10:
                 print("Not enough credits")
-                self.driver.quit()
                 return
 
             # Create tracks with a given prompt
@@ -230,3 +231,4 @@ def run_suno_bot(driver, username, password, prompt, store):
     else:
         suno_bot.sign_out()
         suno_bot.driver.delete_all_cookies()
+    return

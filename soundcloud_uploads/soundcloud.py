@@ -1,4 +1,3 @@
-import os
 import re
 import time
 import pyperclip
@@ -261,8 +260,7 @@ class SoundCloud:
         scroll_down(self.driver)
         # Paginates to the next page if not more than the max_num_of_pages
         pagination_btn = self.driver.find_element(
-            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)",
-            timeout=Settings.TIMEOUT)
+            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
         if max_num_of_pages > 0:
             if pagination_btn.text == "Next" and pagination_btn.is_enabled():
                 print("Navigating to monetization next page")
@@ -281,7 +279,7 @@ class SoundCloud:
         self.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
         try:
             self.driver.click_if_visible("#right-before-content > div > div > button", timeout=Settings.TIMEOUT)
-            print("Waiting for a minute for soundcloud synchronization")
+            print(f"Waiting for {300 / 60} minute(s) for soundcloud synchronization")
             self.driver.sleep(300)
             return True
         except (TimeoutException, IndexError):
@@ -311,3 +309,4 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
     soundcloud_result.append(soundcloud_bot.result)
     if Settings.LOCAL_TESTING:
         driver.quit()
+    return
