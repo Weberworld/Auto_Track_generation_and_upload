@@ -230,7 +230,7 @@ def run_suno_bot(driver, username, password, prompt, store):
 
     if not suno_bot.sign_in(username, password):
         return
-    # suno_bot.run(username, prompt, store)
+    suno_bot.run(username, prompt, store)
     if Settings.LOCAL_TESTING:
         suno_bot.driver.quit()
     else:
