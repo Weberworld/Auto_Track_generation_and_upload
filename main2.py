@@ -22,7 +22,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=15)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=38)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -181,7 +181,10 @@ def automation_process():
                 # Delete the stored information about the uploaded tracks
                 delete_uploaded_files(all_suno_download_results)
 
-            current_suno_act_index = int(r.get("next_suno_acct_index"))
+            try:
+                current_suno_act_index = int(r.get("next_suno_acct_index"))
+            except TypeError:
+                current_suno_act_index = 0
             r.set("next_suno_acct_index", (current_suno_act_index + 1))
 
         webdriver.quit()
