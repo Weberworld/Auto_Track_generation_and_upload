@@ -27,7 +27,6 @@ class SunoAI:
         """
         print(f"Starting Suno process for {username}")
         if max_retry <= 0:
-            self.driver.close()
             return
         try:
             self.driver.get(Settings.SUNO_BASE_URL + "sign-in")
