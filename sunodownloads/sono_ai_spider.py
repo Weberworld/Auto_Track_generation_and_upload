@@ -42,6 +42,7 @@ class SunoAI:
                 self.driver.sleep(1)
                 secs_waited_for += 1
             print("Login Success")
+            return True
         except Exception:
             print(f"Unable to login {username}. Retrying ...")
             return self.sign_in(username, password, (max_retry - 1))
