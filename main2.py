@@ -12,7 +12,7 @@ from settings import Settings
 from sunodownloads.sono_ai_spider import run_suno_bot
 from soundcloud_uploads.soundcloud import run_soundcloud_bot
 from helpers import create_driver
-from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_uploaded_files
+from utils import parse_prompts, get_available_platform_accounts_v2, send_daily_statistics, delete_downloaded_files
 
 sched = BlockingScheduler()
 
@@ -22,7 +22,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=3, minute=20)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -129,7 +129,7 @@ def automation_process():
                 # Upload and monetize tracks on all soundcloud accounts
                 soundcloud_link = os.getenv("SOUNDCLOUD_LINK")
 
-                all_suno_download_results = []
+                # all_suno_download_results = []
                 while (int(current_soundcloud_acct_index)) < len(all_soundcloud_accounts):
                     # Get all the suno download results stored on the redis server
                     all_suno_download_results = [json.loads(item) for item in r.lrange("suno_download_results", 0, -1)]
@@ -175,11 +175,10 @@ def automation_process():
                     # Set the next soundcloud account index to run
                     current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
                     r.set("next_soundcloud_acct_index", (current_soundcloud_acct_index + 1))
+
                 # Reset the soundcloud account index
                 r.set("next_soundcloud_acct_index", 0)
-
-                # Delete the stored information about the uploaded tracks
-                delete_uploaded_files(all_suno_download_results)
+                r.delete("suno_download_results")
 
             try:
                 current_suno_act_index = int(r.get("next_suno_acct_index"))
@@ -188,10 +187,13 @@ def automation_process():
             r.set("next_suno_acct_index", (current_suno_act_index + 1))
 
         webdriver.quit()
+
         # Send the report of the whole activities to the set telegram user
 
         soundcloud_results = [json.loads(result) for result in r.lrange("soundcloud_results", 0, -1)]
 
+        # deletes all downloaded files
+        delete_downloaded_files()
         # Send the alert notification if other dynos has not sent it
         try:
             current_soundcloud_acct_index = int(r.get("next_soundcloud_acct_index"))
