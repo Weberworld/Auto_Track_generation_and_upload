@@ -22,7 +22,7 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=38)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=2, minute=40)
 def automation_process():
     # Connect to the redis server
     r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
@@ -105,7 +105,7 @@ def automation_process():
 
             # Upload downloaded tracks to soundcloud whenever 5 suno acct has ended
             if (stored_suno_download_result is not None and (
-                    (int(r.get('next_suno_acct_index')) + 1) % Settings.CONCURRENT_PROCESS) == 0) or (int(r.get('next_suno_acct_index')) + 1) >= len(all_suno_accounts):
+                    (int(r.get('next_suno_acct_index')) + 1) % Settings.CONCURRENT_PROCESS) == 0) or (int(r.get('next_suno_acct_index'))) >= len(all_suno_accounts):
                 wait_randomly()
 
                 print("\n\nStarting soundcloud upload and monetization")

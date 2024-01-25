@@ -40,7 +40,7 @@ class SoundCloud:
         if retry == 0:
             print(f"Retrying countdown {retry}")
             self.driver.quit()
-            return
+            return False
 
         self.driver.uc_open(link)
         self.result['account'] = username
@@ -63,13 +63,11 @@ class SoundCloud:
         print("processing login ...")
         # Wait for soundcloud redirection or if the Google account needs a code verification
         while not re.search(f"^{Settings.SOUND_CLOUD_ARTIST_BASE_URL}+overview", self.driver.current_url):
-            if secs_waited_for < Settings.TIMEOUT:
-                time.sleep(1)
-                secs_waited_for += 1
-            else:
+            if secs_waited_for > Settings.TIMEOUT:
                 print("retry login")
                 return self.login(link, username, password, (retry - 1))
-            continue
+            time.sleep(1)
+            secs_waited_for += 1
 
         self.driver.sleep(2)
         print("Login success")
@@ -259,10 +257,9 @@ class SoundCloud:
         self.result["monetization_count"] += len(all_monetize_track_btns)
         scroll_down(self.driver)
         # Paginates to the next page if not more than the max_num_of_pages
-        pagination_btn = self.driver.find_element(
-            "#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)")
+        pagination_btn = self.driver.execute_script('return (document.querySelector("#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)"))')
         if max_num_of_pages > 0:
-            if pagination_btn.text == "Next" and pagination_btn.is_enabled():
+            if pagination_btn.textContent == "Next" and not pagination_btn.disabled:
                 print("Navigating to monetization next page")
                 pagination_btn.click()
                 self.driver.sleep(3)
@@ -301,7 +298,8 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
         soundcloud_bot = SoundCloud(driver)
     except NoSuchWindowException:
         soundcloud_bot = SoundCloud(driver)
-    soundcloud_bot.login(link, username, password)
+    if not soundcloud_bot.login(link, username, password):
+        return
     soundcloud_bot.upload_tracks(store)
     if soundcloud_bot.sync_soundcloud_tracks():
         soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")

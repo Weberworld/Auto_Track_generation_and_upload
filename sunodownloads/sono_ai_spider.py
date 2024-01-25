@@ -3,8 +3,7 @@ import re
 from selenium.common import JavascriptException
 from seleniumbase.common.exceptions import TimeoutException
 
-from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down, \
-    rename_track_with_version_number
+from utils import sign_in_with_microsoft, download_image, rename_downloaded_audio_file, scroll_down
 from settings import Settings
 from helpers import wait_for_elements_presence, handle_exception, wait_for_elements_to_be_clickable
 
@@ -26,8 +25,8 @@ class SunoAI:
         :param max_retry:
         """
         print(f"Starting Suno process for {username}")
-        if max_retry <= 0:
-            return
+        if max_retry == 0:
+            return False
         try:
             self.driver.get(Settings.SUNO_BASE_URL + "sign-in")
             # Click on sign in with Microsoft
@@ -37,8 +36,10 @@ class SunoAI:
             sign_in_with_microsoft(self.driver, username, password)
             secs_waited_for = 0
             while not re.search(f"^{Settings.SUNO_BASE_URL}", self.driver.current_url):
-                if secs_waited_for < Settings.TIMEOUT:
-                    self.driver.sleep(1)
+                if secs_waited_for > Settings.TIMEOUT:
+                    print("Timeout while logging in")
+                    return self.sign_in(username, password, (max_retry - 1))
+                self.driver.sleep(1)
                 secs_waited_for += 1
             print("Login Success")
         except Exception:
@@ -50,11 +51,15 @@ class SunoAI:
         Sign out from a logged in suno account
         """
         print("Signing out")
-        # Click on the menu option button
-        wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonTrigger")[0].click()
-        # Click sign out button
-        wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonPopoverActionButton__signOut")[0].click()
-        self.driver.sleep(3)
+        try:
+            # Click on the menu option button
+            wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonTrigger")[0].click()
+            # Click sign out button
+            wait_for_elements_to_be_clickable(self.driver, "button.cl-userButtonPopoverActionButton__signOut")[0].click()
+            self.driver.sleep(3)
+
+        except IndexError:
+            pass
         print("Signed out")
 
     def create_song(self, prompt):
@@ -223,8 +228,9 @@ def run_suno_bot(driver, username, password, prompt, store):
 
     suno_bot = SunoAI(driver)
 
-    suno_bot.sign_in(username, password)
-    suno_bot.run(username, prompt, store)
+    if not suno_bot.sign_in(username, password):
+        return
+    # suno_bot.run(username, prompt, store)
     if Settings.LOCAL_TESTING:
         suno_bot.driver.quit()
     else:
