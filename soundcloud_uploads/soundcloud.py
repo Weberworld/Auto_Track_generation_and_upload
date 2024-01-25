@@ -297,18 +297,21 @@ def run_soundcloud_bot(driver, link, username, password, store, soundcloud_resul
     :param store: List of all downloaded tracks from suno AI bot
     :param soundcloud_result: List to store the result of the soundcloud bot run
     """
-    try:
+    if not len(store) <= 0:
+        try:
 
-        soundcloud_bot = SoundCloud(driver)
-    except NoSuchWindowException:
-        soundcloud_bot = SoundCloud(driver)
-    if not soundcloud_bot.login(link, username, password):
-        return
-    soundcloud_bot.upload_tracks(store)
-    if soundcloud_bot.sync_soundcloud_tracks():
-        soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
-        soundcloud_bot.monetize_track()
-    soundcloud_result.append(soundcloud_bot.result)
+            soundcloud_bot = SoundCloud(driver)
+        except NoSuchWindowException:
+            soundcloud_bot = SoundCloud(driver)
+        if not soundcloud_bot.login(link, username, password):
+            return
+        soundcloud_bot.upload_tracks(store)
+        if soundcloud_bot.sync_soundcloud_tracks():
+            soundcloud_bot.driver.get(Settings.SOUND_CLOUD_ARTIST_BASE_URL + "monetization")
+            soundcloud_bot.monetize_track()
+        soundcloud_result.append(soundcloud_bot.result)
+    else:
+        print("No Tracks to upload. ")
     if Settings.LOCAL_TESTING:
         driver.quit()
     return
