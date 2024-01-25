@@ -258,13 +258,16 @@ class SoundCloud:
         self.result["monetization_count"] += len(all_monetize_track_btns)
         scroll_down(self.driver)
         # Paginates to the next page if not more than the max_num_of_pages
-        pagination_btn = self.driver.execute_script('return (document.querySelector("#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)"))')
-        if max_num_of_pages > 0:
-            if pagination_btn.textContent == "Next" and not pagination_btn.disabled:
-                print("Navigating to monetization next page")
-                pagination_btn.click()
-                self.driver.sleep(3)
-                self.monetize_track((max_num_of_pages - 1))
+        try:
+            pagination_btn = self.driver.execute_script('return (document.querySelector("#right-before-content > div.w-full.h-full.flex.items-center.justify-center.gap-x-2 > button:nth-child(2)"))')
+            if max_num_of_pages > 0:
+                if pagination_btn.textContent == "Next" and not pagination_btn.disabled:
+                    print("Navigating to monetization next page")
+                    pagination_btn.click()
+                    self.driver.sleep(3)
+                    self.monetize_track((max_num_of_pages - 1))
+        except JavascriptException:
+            pass
         print(f"{len(all_monetize_track_btns)} tracks has been monetized")
 
     @handle_exception()
