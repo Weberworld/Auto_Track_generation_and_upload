@@ -87,6 +87,7 @@ class SoundCloud:
         except TimeoutException:
             print("Cannot find cookies")
             pass
+        return True
 
     def log_out(self):
         """
