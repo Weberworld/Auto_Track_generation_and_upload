@@ -22,11 +22,10 @@ def wait_randomly():
     time.sleep(random.randint(1, 5))
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=10)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=1, minute=15)
 def automation_process():
     # Connect to the redis server
-    # r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
-    r = redis.StrictRedis(host="localhost", port=6379, db=0)
+    r = redis.from_url(os.environ.get("REDISCLOUD_URL"))
     r.flushall()
 
     wait_randomly()
